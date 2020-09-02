@@ -1,6 +1,10 @@
 # MiniProgram-Backend
 考研政治刷题小程序NodeJS后端代码
 
+## 技术
++ node.js+express框架
++ mongodb数据库
+
 ## 功能
 ### 用户相关
 + 获取用户头像和昵称
