@@ -1,7 +1,10 @@
 const fs = require('fs')
 
+const Question = require('../util/dbcon').Question
+
+//读取初始文件
 function readQues(){
-    fs.readFile('./questions.txt', 'utf-8', (err, data) => {
+    fs.readFile('../static/questions.txt', 'utf-8', (err, data) => {
         if(err){
             console.log('error')
         }
@@ -58,8 +61,8 @@ function readQues(){
                 tip: tip
             });
         })
-        console.log(res)
-        fs.writeFile('./output.txt', JSON.stringify(res), (err) => {
+        // console.log(res)
+        fs.writeFile('../static/output.txt', JSON.stringify(res), (err) => {
             if(err){
                 console.log('error')
             }
@@ -68,4 +71,23 @@ function readQues(){
 
 }
 
-readQues();
+//将题目存入数据库
+function saveQuestions() {
+    // createSet(db, 'questions');
+    fs.readFile('../static/output.txt', 'utf-8', (err, data) => {
+        if (err){
+            console.log('error')
+        }
+        let arr = JSON.parse(data);
+        for(let question of arr){
+            Question.create(question, (err, data) => {
+                if(err){
+                    console.log('error')
+                    return
+                }
+            })
+        }
+    })
+}
+
+// readQues();
