@@ -20,6 +20,9 @@
 
 ## 运行
 ```
+cd question
+
 npm install
+
 node app.js
 ```
