@@ -20,7 +20,7 @@
 
 ## 运行
 ```
-cd question
+cd miniprogram-backend
 
 npm install
 
