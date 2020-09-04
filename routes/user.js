@@ -31,22 +31,6 @@ router.post('/getUser', (req, res) => {
                 code: 1,
                 msg: '用户不存在',
             }))
-            // UserInfo.create({openID: obj.openID, nickname: obj.nickname}, (err, data) => {
-            //     if(err) {
-            //         res.send(JSON.stringify({
-            //             code: 1,
-            //             msg: '创建用户数据失败'
-            //         }))
-            //         return;
-            //     }
-            //     res.send(JSON.stringify({
-            //         code: 0,
-            //         msg: '插入数据成功',
-            //         data: {
-            //             nickname: obj.nickname
-            //         }
-            //     }))
-            // })
         }
     })
 })

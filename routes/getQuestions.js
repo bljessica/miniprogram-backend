@@ -120,16 +120,24 @@ router.get('/getSimulation', (req, res) => {
         });
         let dataSingle = [], randArrSingle = [], len = arr.length, 
             dataPlural = [], randArrPlural = [];
-        while(randArrSingle.length < 16 || randArrPlural.length < 17 ) {
+        while(randArrSingle.length < 16) {
             let tmp = parseInt(Math.random() * len);
-            if(randArrSingle.includes(tmp) || randArrPlural.includes(tmp)){
+            if(randArrSingle.includes(tmp)){
                 continue;
             }
             let ques = arr[tmp];
             if(ques.type == '单') {
                 randArrSingle.push(tmp);
                 dataSingle.push(ques);
-            } else {
+            } 
+        }
+        while(randArrPlural.length < 17 ) {
+            let tmp = parseInt(Math.random() * len);
+            if(randArrPlural.includes(tmp)){
+                continue;
+            }
+            let ques = arr[tmp];
+            if(ques.type == '多') {
                 randArrPlural.push(tmp);
                 dataPlural.push(ques);
             }

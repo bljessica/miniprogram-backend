@@ -56,7 +56,41 @@ const userInfoSchema = new mongoose.Schema({
         min: 0
     },
 })
+const noteSchema = new mongoose.Schema({
+    openID: {
+        type: String,
+        unique: true
+    },
+    subject: String,
+    chapterNumber: Number,
+    type: String,
+    quesNumber: Number,
+    note: String
+})
+const faultySchema = new mongoose.Schema({
+    openID: {
+        type: String,
+        unique: true
+    },
+    subject: String,
+    chapterNumber: Number,
+    type: String,
+    quesNumber: Number
+})
+const doneSchema = new mongoose.Schema({
+    openID: {
+        type: String,
+        unique: true
+    },
+    subject: String,
+    chapterNumber: Number,
+    type: String,
+    quesNumber: Number
+})
 
 //创建集合并应用规则
 exports.Question = mongoose.model('Question', questionSchema);
 exports.UserInfo = mongoose.model('Userinfo', userInfoSchema);
+exports.Note = mongoose.model('Note', noteSchema)
+exports.Faulty = mongoose.model('Faulty', faultySchema)
+exports.Done = mongoose.model('Done', doneSchema)
