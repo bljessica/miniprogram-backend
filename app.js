@@ -14,8 +14,8 @@ app.use(bodyParser.urlencoded({extended: false}));//解析form表单字段(Conte
 //挂载路由
 app.use('/user/', user)
 app.use('/ques/', getQuestions)
-// app.use('/record/', records)
-// app.use('/note/', notes)
+app.use('/record/', records)
+app.use('/note/', notes)
 
 
 const server = app.listen(3000, 'localhost', () => {

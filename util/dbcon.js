@@ -62,9 +62,9 @@ const noteSchema = new mongoose.Schema({
         unique: true
     },
     subject: String,
-    chapterNumber: Number,
+    chapterNumber: String,
     type: String,
-    quesNumber: Number,
+    quesNumber: String,
     note: String
 })
 const faultySchema = new mongoose.Schema({
@@ -73,9 +73,9 @@ const faultySchema = new mongoose.Schema({
         unique: true
     },
     subject: String,
-    chapterNumber: Number,
+    chapterNumber: String,
     type: String,
-    quesNumber: Number
+    quesNumber: String
 })
 const doneSchema = new mongoose.Schema({
     openID: {
@@ -83,9 +83,9 @@ const doneSchema = new mongoose.Schema({
         unique: true
     },
     subject: String,
-    chapterNumber: Number,
+    chapterNumber: String,
     type: String,
-    quesNumber: Number
+    quesNumber: String
 })
 
 //创建集合并应用规则

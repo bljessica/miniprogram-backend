@@ -28,9 +28,35 @@ router.post('/addNote', (req, res) => {
                         msg: '数据库操作失败'
                     }))
                 }
+                res.send(JSON.stringify({
+                    code: 0,
+                    msg: '笔记更新成功'
+                }))
+            })
+        }
+        //添加笔记
+        else {
+            Note.create({
+                openID: obj.openID,
+                subject: obj.subject,
+                chapterNumber: obj.chapterNumber,
+                type: obj.type,
+                quesNumber: obj.quesNumber,
+                note: obj.note
+            }, (err, resObj) => {
+                if(err) {
+                    res.send(JSON.stringify({
+                        code: 1,
+                        msg: '数据库操作失败'
+                    }))
+                }
+                res.send(JSON.stringify({
+                    code: 0,
+                    msg: '笔记创建成功'
+                }))
             })
         }
     })
 })
 
-exports.router = router
+module.exports = router
