@@ -16,17 +16,17 @@ function readQues(){
             if(item.indexOf('<dan>') != -1){
                 type = '单';
                 tmp = item.indexOf('单选');
-                chapterNumber = item.substring(2, 4);
+                chapterNumber = parseInt(item.substring(2, 4));
                 chapter = item.substring(4, tmp - 2);
-                quesNumber = item.substring(tmp + 2, tmp + 5);
+                quesNumber = parseInt(item.substring(tmp + 2, tmp + 5));
                 typeEnd = item.indexOf('</dan>')
             } 
             else{
                 type = '多';
                 tmp = item.indexOf('多选');
-                chapterNumber = item.substring(2, 4);
+                chapterNumber = parseInt(item.substring(2, 4));
                 chapter = item.substring(4, tmp - 2);
-                quesNumber = item.substring(tmp + 2, tmp + 5)
+                quesNumber = parseInt(item.substring(tmp + 2, tmp + 5));
                 typeEnd = item.indexOf('</duo>')
             }
 
@@ -66,6 +66,7 @@ function readQues(){
             if(err){
                 console.log('error')
             }
+            console.log('输出成功')
         });
     })
 
@@ -83,11 +84,14 @@ function saveQuestions() {
             Question.create(question, (err, data) => {
                 if(err){
                     console.log('error')
-                    return
+                    return;
                 }
             })
         }
+        console.log('存储成功')
     })
 }
 
+
 // readQues();
+saveQuestions();

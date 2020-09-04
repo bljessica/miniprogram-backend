@@ -23,10 +23,10 @@ const db = mongoose.connection;
 //集合规则
 const questionSchema = new mongoose.Schema({
     subject: String,
-    chapterNumber: String,
+    chapterNumber: Number,
     chapter: String,
     type: String,
-    quesNumber: String,
+    quesNumber: Number,
     question: String,
     A: String,
     B: String,
@@ -57,35 +57,33 @@ const userInfoSchema = new mongoose.Schema({
     },
 })
 const noteSchema = new mongoose.Schema({
-    openID: {
-        type: String,
-        unique: true
-    },
+    openID: String,
     subject: String,
-    chapterNumber: String,
+    chapterNumber: Number,
     type: String,
-    quesNumber: String,
+    quesNumber: Number,
     note: String
 })
 const faultySchema = new mongoose.Schema({
-    openID: {
-        type: String,
-        unique: true
-    },
+    openID: String,
     subject: String,
-    chapterNumber: String,
+    chapterNumber: Number,
     type: String,
-    quesNumber: String
+    quesNumber: Number
 })
 const doneSchema = new mongoose.Schema({
-    openID: {
-        type: String,
-        unique: true
-    },
+    openID: String,
     subject: String,
-    chapterNumber: String,
+    chapterNumber: Number,
     type: String,
-    quesNumber: String
+    quesNumber: Number
+})
+const collectSchema = new mongoose.Schema({
+    openID: String,
+    subject: String,
+    chapterNumber: Number,
+    type: String,
+    quesNumber: Number
 })
 
 //创建集合并应用规则
@@ -94,3 +92,5 @@ exports.UserInfo = mongoose.model('Userinfo', userInfoSchema);
 exports.Note = mongoose.model('Note', noteSchema)
 exports.Faulty = mongoose.model('Faulty', faultySchema)
 exports.Done = mongoose.model('Done', doneSchema)
+exports.Collection = mongoose.model('Collection', collectSchema)
+
