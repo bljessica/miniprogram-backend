@@ -38,7 +38,8 @@ router.post('/getUser', (req, res) => {
 //存入用户头像和昵称
 router.post('/saveUser', (req, res) => {
     let obj = req.body;
-    if(obj.gender != 1 && obj.gender != 2){
+    console.log(obj);
+    if (obj.gender != 1 && obj.gender != 2) {
         res.send(JSON.stringify({
             code: 1,
             msg: '性别输入错误'
