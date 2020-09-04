@@ -222,5 +222,55 @@ router.post('/collect', (req, res) => {
     })
 })
 
+//取消收藏某题
+router.post('/cancelCollection', (req, res) => {
+    let obj = req.body;
+    //查询是否有此题的记录
+    Collection.findOne({
+        openID: obj.openID, 
+        subject: obj.subject,
+        chapterNumber: obj.chapterNumber,
+        type: obj.type,
+        quesNumber: obj.quesNumber
+    }, (err, resObj) => {
+        if(err) {
+            res.send(JSON.stringify({
+                code: 1,
+                msg: '数据库操作失败'
+            }))
+            return;
+        }
+        //取消收藏
+        if(resObj) {
+            Collection.remove({
+                openID: obj.openID, 
+                subject: obj.subject,
+                chapterNumber: obj.chapterNumber,
+                type: obj.type,
+                quesNumber: obj.quesNumber
+            }, (err, resObj) => {
+                if(err) {
+                    res.send(JSON.stringify({
+                        code: 1,
+                        msg: '数据库操作失败'
+                    }))
+                    return;
+                }
+                res.send(JSON.stringify({
+                    code: 0,
+                    msg: '成功取消收藏'
+                }))
+            })
+        }
+        //未收藏此题
+        else {
+            res.send(JSON.stringify({
+                code: 1,
+                msg: '此题未收藏'
+            }))
+        }
+    })
+})
+
 
 module.exports = router;
