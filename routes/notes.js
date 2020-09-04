@@ -6,12 +6,19 @@ const Note = require('../util/dbcon').Note;
 router.post('/addNote', (req, res) => {
     let obj = req.body;
     //查询是否有此题的笔记
-    Note.findOne({openID: obj.openID}, (err, resObj) => {
+    Note.findOne({
+        openID: obj.openID, 
+        subject: obj.subject,
+        chapterNumber: obj.chapterNumber,
+        type: obj.type,
+        quesNumber: obj.quesNumber
+    }, (err, resObj) => {
         if(err) {
             res.send(JSON.stringify({
                 code: 1,
                 msg: '数据库操作失败'
             }))
+            return;
         }
         //更新笔记内容
         if(resObj) {
