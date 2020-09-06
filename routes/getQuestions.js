@@ -1,19 +1,21 @@
 const express = require('express')
 const router = express.Router()
 
-const Question = require('../util/dbcon').Question
+const { Question } = require('../util/dbcon')
+const { respondDBErr, respondMsg } = require('../util/response');
+const { processSubject } = require('../util/processReq');
+
 
 //获取某科目的所有题目
 router.get('/getSubject', (req, res) => {
     let obj = req.body;
+    obj.subject = processSubject(obj.subject)
+    if(!obj.subject) {
+        respondMsg(res, 1, '科目输入不合法');
+        return;
+    }
     Question.find({subject: obj.subject}, (err, resObj) => {
-        if(err) {
-            res.send(JSON.stringify({
-                code: 1,
-                msg: '查询失败'
-            }))
-            return;
-        }
+        respondDBErr(err, res);
         let data = [];
         resObj.forEach(item => {
             data.push({
@@ -30,25 +32,20 @@ router.get('/getSubject', (req, res) => {
                 tip: item.tip
             });
         });
-        res.send(JSON.stringify({
-            code: 0,
-            msg: '查询成功',
-            data: data
-        }))
+        respondMsg(res, 0, '查询成功', data);
     })
 })
 
 //获取某科目某章节的所有题目
 router.get('/getChapter', (req, res) => {
     let obj = req.body;
-    Question.find({subject: obj.subject, chapter: obj.chapter}, (err, resObj) => {
-        if(err) {
-            res.send(JSON.stringify({
-                code: 1,
-                msg: '查询失败'
-            }))
-            return;
-        }
+    obj.subject = processSubject(obj.subject)
+    if(!obj.subject) {
+        respondMsg(res, 1, '科目输入不合法');
+        return;
+    }
+    Question.find({subject: obj.subject, chapterNumber: obj.chapterNumber}, (err, resObj) => {
+        respondDBErr(err, res);
         let data = [];
         resObj.forEach(item => {
             data.push({
@@ -63,24 +60,14 @@ router.get('/getChapter', (req, res) => {
                 tip: item.tip
             });
         });
-        res.send(JSON.stringify({
-            code: 0,
-            msg: '查询成功',
-            data: data
-        }))
+        respondMsg(res, 0, '查询成功', data);
     })
 })
 
 //获取随机的50道题
 router.get('/getRandom', (req, res) => {
     Question.find((err, resObj) => {
-        if(err) {
-            res.send(JSON.stringify({
-                code: 1,
-                msg: '查询失败'
-            }))
-            return;
-        }
+        respondDBErr(err, res);
         let arr = [];
         resObj.forEach(item => {
             arr.push(item);
@@ -94,26 +81,15 @@ router.get('/getRandom', (req, res) => {
             randArr.push(tmp);
             data.push(arr[tmp]);
         }
-        res.send(JSON.stringify({
-            code: 0,
-            msg: '查询成功',
-            data: data
-        }))
+        respondMsg(res, 0, '查询成功', data);
     })
 })
 
-//获取某科目的一套模拟题（单选16道，多选17道）
+//获取一套模拟题（单选16道，多选17道）
 router.get('/getSimulation', (req, res) => {
-    let obj = req.body;
     //单选
-    Question.find({subject: obj.subject}, (err, resObj) => {
-        if(err) {
-            res.send(JSON.stringify({
-                code: 1,
-                msg: '查询失败'
-            }))
-            return;
-        }
+    Question.find((err, resObj) => {
+        respondDBErr(err, res);
         let arr = [];
         resObj.forEach(item => {
             arr.push(item);
@@ -142,14 +118,10 @@ router.get('/getSimulation', (req, res) => {
                 dataPlural.push(ques);
             }
         }
-        res.send(JSON.stringify({
-            code: 0,
-            msg: '查询成功',
-            data: {
-                single: dataSingle,
-                plural: dataPlural
-            }
-        }))
+        respondMsg(res, 0, '查询成功', {
+            single: dataSingle,
+            plural: dataPlural
+        })
     })
 })
 

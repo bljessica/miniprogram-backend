@@ -38,7 +38,7 @@ const questionSchema = new mongoose.Schema({
 const userInfoSchema = new mongoose.Schema({
     openID: {
         type: String,
-        unique: true,
+        unique: true
     },
     avatar: String,
     nickname: String,
@@ -49,48 +49,21 @@ const userInfoSchema = new mongoose.Schema({
     school: String,
     goal: Number,
     motto: String,
-    days_of_persistence: Number,
-    correct_ratio: {
-        type: Number,
-        max: 1,
-        min: 0
-    },
+    daysOfPersistence: Number
 })
-const noteSchema = new mongoose.Schema({
+const recordSchema = new mongoose.Schema({
     openID: String,
     subject: String,
     chapterNumber: Number,
     type: String,
     quesNumber: Number,
-    note: String
-})
-const faultySchema = new mongoose.Schema({
-    openID: String,
-    subject: String,
-    chapterNumber: Number,
-    type: String,
-    quesNumber: Number
-})
-const doneSchema = new mongoose.Schema({
-    openID: String,
-    subject: String,
-    chapterNumber: Number,
-    type: String,
-    quesNumber: Number
-})
-const collectSchema = new mongoose.Schema({
-    openID: String,
-    subject: String,
-    chapterNumber: Number,
-    type: String,
-    quesNumber: Number
+    note: String,
+    isWrong: Boolean,
+    isCollected: Boolean
 })
 
 //创建集合并应用规则
 exports.Question = mongoose.model('Question', questionSchema);
 exports.UserInfo = mongoose.model('Userinfo', userInfoSchema);
-exports.Note = mongoose.model('Note', noteSchema)
-exports.Faulty = mongoose.model('Faulty', faultySchema)
-exports.Done = mongoose.model('Done', doneSchema)
-exports.Collection = mongoose.model('Collection', collectSchema)
+exports.Record = mongoose.model('Record', recordSchema);
 

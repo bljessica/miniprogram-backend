@@ -90,12 +90,8 @@ function saveQuestions() {
         }
         console.log('存储成功')
     })
-<<<<<<< HEAD
-}
-=======
 }
 
 
 // readQues();
 saveQuestions();
->>>>>>> upstream/master
