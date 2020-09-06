@@ -26,6 +26,15 @@
 + 取消收藏某题
 + 某题的用户正确率（做对这题的人数/做过这题的人数）
 
+## 将题目存入数据库
+```
+cd miniprogram-backend
+
+cd util
+
+node processData.js
+```
+
 ## 运行
 ```
 cd miniprogram-backend
