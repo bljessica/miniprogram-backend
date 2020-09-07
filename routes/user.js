@@ -5,6 +5,15 @@ const { UserInfo, Record } = require('../util/dbcon');
 const { respondDBErr, respondMsg } = require('../util/response');
 const { verifyOpenID, verifyGender, isNumber } = require('../util/verifyData');
 
+function saveDaysOfPersistence(res, obj, daysOfPersistence) {
+    return new Promise((resolve, reject) => {
+        UserInfo.update({openID: obj.openID}, {daysOfPersistence: daysOfPersistence}, (err, resObj) => {
+            respondDBErr(err, res);
+            resolve();
+        })
+    })
+    
+}
 
 //获取用户昵称
 router.post('/getUser', (req, res) => {
@@ -14,27 +23,32 @@ router.post('/getUser', (req, res) => {
         //存在此openID
         if(resObj) {
             //剩余天数
-            let daysRemaining = -1;
-            if(resObj.daysOfPersistence && resObj.goal) {
-                daysRemaining = resObj.goal - resObj.daysOfPersistence;
-            }
-            //用户个人正确率
-            //用户做过的题数
-            Record.countDocuments({openID: obj.openID}, (err, countDone) => {
-                respondDBErr(err, res);
-                //用户做错的题数
-                Record.countDocuments({openID: obj.openID, isWrong: true}, 
-                    (err, countFaulty) => {
-                    respondDBErr(err, res);
-                    respondMsg(res, 0, '查询成功', {
+            let daysOfPersistence = Math.round((Date.now() - resObj.createTime) / (1*24*60*60*1000));
+            //存储剩余天数
+            saveDaysOfPersistence(res, obj, daysOfPersistence)
+                .then(() => {
+                    let daysRemaining = -1;
+                    if(resObj.goal) {
+                        daysRemaining = resObj.goal - daysOfPersistence;
+                    }
+                    //用户个人正确率
+                    //用户做过的题数
+                    Record.countDocuments({openID: obj.openID}, (err, countDone) => {
+                        respondDBErr(err, res);
+                        //用户做错的题数
+                        Record.countDocuments({openID: obj.openID, isWrong: true}, 
+                            (err, countFaulty) => {
+                            respondDBErr(err, res);
+                            respondMsg(res, 0, '查询成功', {
                                 nickname: resObj.nickname,
                                 avatar: resObj.avatar,
                                 daysRemaining: daysRemaining,
-                                daysOfPersistence: resObj.daysOfPersistence == null ? 0: resObj.daysOfPersistence,
+                                daysOfPersistence: daysOfPersistence,
                                 correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100)
                             })
+                        })
+                    })
                 })
-            })
         }
         //openID不存在
         else {

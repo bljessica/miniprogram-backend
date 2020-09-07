@@ -49,7 +49,14 @@ const userInfoSchema = new mongoose.Schema({
     school: String,
     goal: Number,
     motto: String,
-    daysOfPersistence: Number
+    daysOfPersistence: {
+        type: Number,
+        default: 0
+    },
+    createTime: {
+        type: Date,
+        default: Date.now
+    }
 })
 const recordSchema = new mongoose.Schema({
     openID: String,
