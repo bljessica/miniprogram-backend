@@ -14,7 +14,7 @@ router.get('/getSubject', (req, res) => {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
-    Question.find({subject: obj.subject}, (err, resObj) => {
+    Question.find({subject: obj.subject}, null, {chapterNumber: 1, quesNumber: 1}, (err, resObj) => {
         respondDBErr(err, res);
         let data = [];
         resObj.forEach(item => {
@@ -44,7 +44,7 @@ router.get('/getChapter', (req, res) => {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
-    Question.find({subject: obj.subject, chapterNumber: obj.chapterNumber}, (err, resObj) => {
+    Question.find({subject: obj.subject, chapterNumber: obj.chapterNumber}, null, {chapterNumber: 1, quesNumber: 1}, (err, resObj) => {
         respondDBErr(err, res);
         let data = [];
         resObj.forEach(item => {
@@ -64,7 +64,7 @@ router.get('/getChapter', (req, res) => {
     })
 })
 
-//获取随机的50道题
+//获取随机的20道题
 router.get('/getRandom', (req, res) => {
     Question.find((err, resObj) => {
         respondDBErr(err, res);
@@ -73,7 +73,7 @@ router.get('/getRandom', (req, res) => {
             arr.push(item);
         });
         let data = [], randArr = [], len = arr.length;
-        while(randArr.length < 50) {
+        while(randArr.length < 20) {
             let tmp = parseInt(Math.random() * len);
             if(randArr.includes(tmp)){
                 continue;

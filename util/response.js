@@ -17,5 +17,16 @@ function respondMsg(res, code, msg, data) {
     }))
 }
 
+function sortByChapter(data) {
+    return new Promise((resolve, reject) => {
+        data.sort((a, b) => {
+            return a.chapterNumber - b.chapterNumber;
+        });
+        resolve();
+        console.log('排序成功');
+    })
+}
+
 module.exports.respondDBErr = respondDBErr;
 module.exports.respondMsg = respondMsg;
+module.exports.sortByChapter = sortByChapter;

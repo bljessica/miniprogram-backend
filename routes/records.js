@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const subjects = require('../util/const').SUBJECTS;
-const { respondDBErr, respondMsg } = require('../util/response');
+const { respondDBErr, respondMsg, sortByChapter } = require('../util/response');
 const { processSubject, processType } = require('../util/processReq');
 const { UserInfo, Question, Record } = require('../util/dbcon');
 
@@ -214,7 +214,10 @@ router.post('/chapterProgress', (req, res) => {
                             doneNum: countChapterDone
                         })
                         if(data.length == chapterNum) {
-                            respondMsg(res, 0, '查询成功', data);
+                            sortByChapter(data).then(() => {
+                                console.log('返回')
+                                respondMsg(res, 0, '查询成功', data);
+                            })
                         }
                     })
                 })    
@@ -222,6 +225,7 @@ router.post('/chapterProgress', (req, res) => {
         }  
     }).sort({chapterNumber: -1}).skip(0).limit(1);
 })
+
 
 //某题的所有用户正确率
 router.get('/getCorrectRate', (req, res) => {

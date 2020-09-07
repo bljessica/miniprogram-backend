@@ -40,10 +40,9 @@ function readQues(){
             let quesD = quesDStr.substring(0, firstT);
             let tipStart = quesDStr.indexOf('<tip7>'), tipEnd = quesDStr.lastIndexOf('</tip7>');
             let tip = quesDStr.substring(tipStart + 6, tipEnd).replace(/<\/tip7>/g, '').replace(/<tip7>/g, '');
-            // let tip = quesDStr.substring(tipStart + 6);
             let ansStart = item.indexOf('<true1>'), ansEnd = item.indexOf('</true1>');
             let spanIndex = ques.indexOf('<span');
-            ques = ques.replace(ques.substring(spanIndex, ansStart), '').replace(/^\s+|\s+$/g, '');
+            ques = ques.replace(ques.substring(spanIndex, ansStart), '').replace(/^\s+|\s+$/g, '').replace(/^\?*/g, '');
             let ans = item.substring(ansStart + 7, ansEnd);
             
             res.push({
@@ -92,6 +91,21 @@ function saveQuestions() {
     })
 }
 
+function loadAndSave() {
+    return new Promise((resolve, reject) => {
+        readQues();
+        resolve();
+        console.log('read');
+    })
+}
+
+loadAndSave().then(() => {
+    saveQuestions();
+    console.log('save')
+})
 
 // readQues();
-saveQuestions();
+// saveQuestions();
+
+
+

@@ -35,6 +35,7 @@ function verifyGender(gender) {
 }
 
 function isNumber(data) {
+    if(data == null) return true;
     if(!/^[0-9]*$/.test(data)) {
         return false;
     }
