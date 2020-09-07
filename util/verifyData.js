@@ -1,25 +1,5 @@
-const { SUBJECTS } = require('./const');
 
-const subjects = require('./const').SUBJECTS;
-const types = require('./const').TYPES;
-
-
-function processSubject(num) {
-    //输入错误
-    if(num != 1 && num != 2 && num != 3 && num != 4) {
-        return null;
-    }
-    return subjects[num - 1];
-}
-
-function processType(num) {
-    //输入错误
-    if(num != 1 && num != 2) {
-        return null;
-    }
-    return types[num - 1];
-}
-
+//openID是否合法
 function verifyOpenID(openID) {
     if(openID == null || openID == '' || openID == undefined) {
         return false;
@@ -27,6 +7,7 @@ function verifyOpenID(openID) {
     return true;
 }
 
+//性别输入是否合法
 function verifyGender(gender) {
     if(gender != 1 && gender != 2) {
         return false;
@@ -34,6 +15,7 @@ function verifyGender(gender) {
     return true;
 }
 
+//输入是否为数字
 function isNumber(data) {
     if(data == null) return true;
     if(!/^[0-9]*$/.test(data)) {
@@ -42,8 +24,25 @@ function isNumber(data) {
     return true;
 }
 
-module.exports.processSubject = processSubject;
-module.exports.processType = processType;
+//科目输入是否合法
+function verifySubject(subject) {
+    if([1, 2, 3, 4].includes(subject)) {
+        return true;
+    }
+    return false;
+}
+
+//类型输入是否合法
+function verifyType(type) {
+    if([1, 2].includes(type)) {
+        return true;
+    }
+    return false;
+}
+
+
 module.exports.verifyOpenID = verifyOpenID;
 module.exports.verifyGender = verifyGender;
 module.exports.isNumber = isNumber;
+module.exports.verifySubject = verifySubject;
+module.exports.verifyType = verifyType;

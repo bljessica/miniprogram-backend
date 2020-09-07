@@ -22,10 +22,10 @@ const db = mongoose.connection;
 
 //集合规则
 const questionSchema = new mongoose.Schema({
-    subject: String,
+    subject: Number,
     chapterNumber: Number,
     chapter: String,
-    type: String,
+    type: Number,
     quesNumber: Number,
     question: String,
     A: String,

@@ -2,20 +2,18 @@ const express = require('express')
 const router = express.Router()
 
 const { Record } = require('../util/dbcon');
-const { processSubject, processType, verifyOpenID } = require('../util/processReq');
 const { respondDBErr, respondMsg } = require('../util/response');
+const { verifySubject, verifyType } = require('../util/verifyData')
 
 
 // 添加笔记
 router.post('/addNote', (req, res) => {
     let obj = req.body;
-    obj.subject = processSubject(obj.subject);
-    if(!obj.subject) {
+    if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
-    obj.type = processType(obj.type);
-    if(!obj.type) {
+    if(!verifyType(obj.type)) {
         respondMsg(res, 1, '题目类型输入不合法');
         return;
     }

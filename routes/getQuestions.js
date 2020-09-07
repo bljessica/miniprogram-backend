@@ -1,16 +1,15 @@
 const express = require('express')
 const router = express.Router()
 
-const { Question } = require('../util/dbcon')
+const { Question, Record } = require('../util/dbcon')
 const { respondDBErr, respondMsg } = require('../util/response');
-const { processSubject } = require('../util/processReq');
-
+const { verifySubject } = require('../util/verifyData')
+const { countWrongRecords } = require('../util/processData')
 
 //获取某科目的所有题目
 router.get('/getSubject', (req, res) => {
     let obj = req.body;
-    obj.subject = processSubject(obj.subject)
-    if(!obj.subject) {
+    if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
@@ -39,8 +38,7 @@ router.get('/getSubject', (req, res) => {
 //获取某科目某章节的所有题目
 router.get('/getChapter', (req, res) => {
     let obj = req.body;
-    obj.subject = processSubject(obj.subject)
-    if(!obj.subject) {
+    if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
@@ -79,9 +77,38 @@ router.get('/getRandom', (req, res) => {
                 continue;
             }
             randArr.push(tmp);
-            data.push(arr[tmp]);
+            //题目arr[tmp]的正确率
+            let item = arr[tmp];
+            //做过此题的人数
+            Record.countDocuments({
+                subject: item.subject, chapterNumber: item.chapterNumber, type: item.type, 
+                quesNumber: item.quesNumber}, (err, countDone) => {
+                respondDBErr(err, res);
+                //做错此题的人数
+                Record.countDocuments({ subject: item.subject, chapterNumber: item.chapterNumber, 
+                    type: item.type, quesNumber: item.quesNumber, isWrong: true}, (err, countFaulty) => {
+                    respondDBErr(err, res);
+                    item.correctRate = countDone == 0 ? 0: (countDone - countFaulty) / countDone;
+                    data.push({
+                        correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100),
+                        subject: item.subject,
+                        chapter: item.chapter,
+                        type: item.type,
+                        quesNumber: item.quesNumber,
+                        question: item.question,
+                        A: item.A,
+                        B: item.B,
+                        C: item.C, 
+                        D: item.D,
+                        answer: item.answer,
+                        tip:item.tip
+                    });
+                    if(data.length == 20) {
+                        respondMsg(res, 0, '查询成功', data);
+                    }
+                })
+            });
         }
-        respondMsg(res, 0, '查询成功', data);
     })
 })
 
@@ -102,7 +129,7 @@ router.get('/getSimulation', (req, res) => {
                 continue;
             }
             let ques = arr[tmp];
-            if(ques.type == '单') {
+            if(ques.type == 1) { //单选
                 randArrSingle.push(tmp);
                 dataSingle.push(ques);
             } 
@@ -113,7 +140,7 @@ router.get('/getSimulation', (req, res) => {
                 continue;
             }
             let ques = arr[tmp];
-            if(ques.type == '多') {
+            if(ques.type == 2) { //多选
                 randArrPlural.push(tmp);
                 dataPlural.push(ques);
             }
@@ -123,6 +150,28 @@ router.get('/getSimulation', (req, res) => {
             plural: dataPlural
         })
     })
+})
+
+//错题重练（随机20道， 小于则全返回）
+router.post('/getWrong', (req, res) => {
+    let obj = req.body;
+    Record.find({openID: obj.openID, isWrong: true}, (err, resObj1) => {
+        respondDBErr(err, res);
+        let data = [];
+        countWrongRecords(obj).then(count => {
+            resObj1.forEach(record => {
+                Question.findOne({subject: record.subject, chapterNumber: record.chapterNumber, 
+                    type: record.type, quesNumber: record.quesNumber}, (err, resObj2) => {
+                        respondDBErr(err, res);
+                        console.log(resObj2)
+                        data.push(resObj2);
+                        if(data.length == count) {
+                            respondMsg(res, 0, '查询成功', data)
+                        }
+                });
+            })
+        })
+    }).limit(20);
 })
 
 module.exports = router

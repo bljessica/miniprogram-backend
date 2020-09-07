@@ -1,22 +1,21 @@
 const express = require('express');
 const router = express.Router();
 
-const subjects = require('../util/const').SUBJECTS;
-const { respondDBErr, respondMsg, sortByChapter } = require('../util/response');
-const { processSubject, processType } = require('../util/processReq');
+const { SUBJECTS } = require('../util/const');
+const { respondDBErr, respondMsg } = require('../util/response');
 const { UserInfo, Question, Record } = require('../util/dbcon');
+const { verifySubject, verifyType } = require('../util/verifyData')
+const { sortByChapter } = require('../util/processData');
 
 
 //标记错题
 router.post('/markFaulty', (req, res) => {
     let obj = req.body;
-    obj.subject = processSubject(obj.subject)
-    if(!obj.subject) {
+    if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
-    obj.type = processType(obj.type);
-    if(!obj.type) {
+    if(!verifyType(obj.type)) {
         respondMsg(res, 1, '题目类型输入不合法');
         return;
     }
@@ -47,13 +46,11 @@ router.post('/markFaulty', (req, res) => {
 //收藏题目
 router.post('/collect', (req, res) => {
     let obj = req.body;
-    obj.subject = processSubject(obj.subject);
-    if(!obj.subject) {
+    if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
-    obj.type = processType(obj.type);
-    if(!obj.type) {
+    if(!verifyType(obj.type)) {
         respondMsg(res, 1, '题目类型输入不合法');
         return;
     }
@@ -83,13 +80,11 @@ router.post('/collect', (req, res) => {
 //将某题加入已做过的题目
 router.post('/markDone', (req, res) => {
     let obj = req.body;
-    obj.subject = processSubject(obj.subject);
-    if(!obj.subject) {
+    if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
-    obj.type = processType(obj.type);
-    if(!obj.type) {
+    if(!verifyType(obj.type)) {
         respondMsg(res, 1, '题目类型输入不合法');
         return;
     }
@@ -115,12 +110,10 @@ router.post('/markDone', (req, res) => {
 //取消收藏某题
 router.post('/cancelCollection', (req, res) => {
     let obj = req.body;
-    obj.subject = processSubject(obj.subject);
-    if(!obj.subject) {
+    if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
-    obj.type = processType(obj.type);
     if(!obj.type) {
         respondMsg(res, 1, '题目类型输入不合法');
         return;
@@ -155,24 +148,24 @@ router.post('/totalProgress', (req, res) => {
             respondMsg(res, 1, '用户不存在');
             return;
         }
-        for(let item of subjects) {
+        for(let i = 1; i <= SUBJECTS.length; i++) {
             //各科目总题数
-            Question.countDocuments({subject: item}, (err, countQuestion) => {
+            Question.countDocuments({subject: i}, (err, countQuestion) => {
                 respondDBErr(err, res);
                 //做过的题数
-                Record.countDocuments({openID: obj.openID, subject: item}, (err, countDone) => {
+                Record.countDocuments({openID: obj.openID, subject: i}, (err, countDone) => {
                     respondDBErr(err, res);
                     //错误的题数
-                    Record.countDocuments({openID: obj.openID, subject: item, isWrong: true}, (err, countFaulty) => {
+                    Record.countDocuments({openID: obj.openID, subject: i, isWrong: true}, (err, countFaulty) => {
                         respondDBErr(err, res);
                         data.push({
-                            subject: item,
+                            subject: i,
                             totalNum: countQuestion,
                             doneNum: countDone,
-                            correctRate: countDone == 0 ? 0: (countDone - countFaulty) / countDone,
-                            process: countDone / countQuestion
+                            correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100),
+                            progress: parseInt((countDone / countQuestion) * 100)
                         })
-                        if(data.length == subjects.length) {
+                        if(data.length == SUBJECTS.length) {
                             respondMsg(res, 0, '查询成功', data);
                         }
                     })
@@ -185,8 +178,7 @@ router.post('/totalProgress', (req, res) => {
 //某科目各章总题数+每章做过的题数
 router.post('/chapterProgress', (req, res) => {
     let obj = req.body;
-    obj.subject = processSubject(obj.subject);
-    if(!obj.subject) {
+    if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
@@ -226,17 +218,14 @@ router.post('/chapterProgress', (req, res) => {
     }).sort({chapterNumber: -1}).skip(0).limit(1);
 })
 
-
 //某题的所有用户正确率
 router.get('/getCorrectRate', (req, res) => {
     let obj = req.body;
-    obj.subject = processSubject(obj.subject);
-    if(!obj.subject) {
+    if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
-    obj.type = processType(obj.type);
-    if(!obj.type) {
+    if(!verifyType(obj.type)) {
         respondMsg(res, 1, '题目类型输入不合法');
         return;
     }
@@ -244,15 +233,15 @@ router.get('/getCorrectRate', (req, res) => {
     Record.countDocuments({
         subject: obj.subject, chapterNumber: obj.chapterNumber, type: obj.type, 
         quesNumber: obj.quesNumber}, (err, countDone) => {respondDBErr(err, res);
-            //做错此题的人数
-            Record.countDocuments({ subject: obj.subject, chapterNumber: obj.chapterNumber, 
-                type: obj.type, quesNumber: obj.quesNumber, isWrong: true}, (err, countFaulty) => {
-                respondDBErr(err, res);
-                respondMsg(res, 0, '查询成功', {
-                    correctRate: countDone == 0 ? 0: (countDone - countFaulty) / countDone
-                })
+        //做错此题的人数
+        Record.countDocuments({ subject: obj.subject, chapterNumber: obj.chapterNumber, 
+            type: obj.type, quesNumber: obj.quesNumber, isWrong: true}, (err, countFaulty) => {
+            respondDBErr(err, res);
+            respondMsg(res, 0, '查询成功', {
+                correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100)
             })
         })
+    })
 })
 
 

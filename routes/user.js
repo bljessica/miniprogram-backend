@@ -3,7 +3,7 @@ const router = express.Router();//可使用 express.Router 类创建模块化、
 
 const { UserInfo, Record } = require('../util/dbcon');
 const { respondDBErr, respondMsg } = require('../util/response');
-const { verifyOpenID, verifyGender, isNumber } = require('../util/processReq');
+const { verifyOpenID, verifyGender, isNumber } = require('../util/verifyData');
 
 
 //获取用户昵称
@@ -30,7 +30,8 @@ router.post('/getUser', (req, res) => {
                                 nickname: resObj.nickname,
                                 avatar: resObj.avatar,
                                 daysRemaining: daysRemaining,
-                                correctRate: countDone == 0 ? 0: (countDone - countFaulty) / countDone
+                                daysOfPersistence: resObj.daysOfPersistence == null ? 0: resObj.daysOfPersistence,
+                                correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100)
                             })
                 })
             })
@@ -112,9 +113,14 @@ router.post('/getUserInfo', (req, res) => {
     UserInfo.findOne({openID: obj.openID}, (err, resObj) => {
         respondDBErr(err, res);
         if(resObj) {
-            respondMsg(res, 0, '查询成功', { avatar: resObj.avatar, nickname: resObj.nickname, 
-                gender: resObj.gender, school: resObj.school, goal: resObj.goal, 
-                motto: resObj.motto, daysOfPersistence: resObj.daysOfPersistence});
+            respondMsg(res, 0, '查询成功', { 
+                avatar: resObj.avatar, 
+                nickname: resObj.nickname, 
+                gender: resObj.gender, 
+                school: resObj.school, 
+                goal: resObj.goal, 
+                motto: resObj.motto, 
+                daysOfPersistence: resObj.daysOfPersistence});
         }
         //openID不存在
         else {
