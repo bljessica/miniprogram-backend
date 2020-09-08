@@ -1,6 +1,7 @@
 const { SUBJECTS, TYPES } = require('./const');
 const { respondDBErr } = require('../util/response');
-const { Record } = require('../util/dbcon')
+const { Record, Question } = require('../util/dbcon');
+const { isNumber } = require('./verifyData');
 
 
 function subjectToNumber(subject) {
@@ -41,8 +42,10 @@ function countWrongRecords(obj, res) {
 }
 
 
+
 module.exports.subjectToNumber = subjectToNumber;
 module.exports.typeToNumber = typeToNumber;
 module.exports.sortByChapter = sortByChapter;
 module.exports.countWrongRecords = countWrongRecords;
+// module.exports.questionTotalNum = questionTotalNum;
 

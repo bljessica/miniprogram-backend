@@ -11,6 +11,8 @@ function readQues(){
         }
         data = data.toString()
         let quesArr = data.split('\n'), res = [];
+        let nums = quesArr.length;
+        // console.log(nums)
         quesArr.map((item, index, arr) => {
             let subject = item.substring(0, 2), type = null, chapter = null, quesNumber = null, typeEnd = null;
             let tmp = null, chapterNumber = null;
@@ -46,6 +48,7 @@ function readQues(){
             ques = ques.replace(ques.substring(spanIndex, ansStart), '').replace(/^\s+|\s+$/g, '').replace(/^\?*/g, '');
             let ans = item.substring(ansStart + 7, ansEnd);
             res.push({
+                id: index + 1,
                 subject: subjectToNumber(subject),
                 chapterNumber: chapterNumber,
                 chapter: chapter,

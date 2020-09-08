@@ -1,4 +1,5 @@
 const express = require('express')
+const mongoose = require('mongoose')
 const router = express.Router()
 
 const { Question, Record } = require('../util/dbcon')
@@ -8,7 +9,7 @@ const { countWrongRecords } = require('../util/processData')
 
 //获取某科目的所有题目
 router.get('/getSubject', (req, res) => {
-    let obj = req.body;
+    let obj = req.query;
     if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
@@ -17,19 +18,7 @@ router.get('/getSubject', (req, res) => {
         respondDBErr(err, res);
         let data = [];
         resObj.forEach(item => {
-            data.push({
-                chapterNumber: item.chapterNumber,
-                chapter: item.chapter,
-                type: item.type,
-                quesNumber: item.quesNumber,
-                question: item.question,
-                A: item.A,
-                B: item.B,
-                C: item.C, 
-                D: item.D,
-                answer: item.answer,
-                tip: item.tip
-            });
+            data.push(item)
         });
         respondMsg(res, 0, '查询成功', data);
     })
@@ -37,7 +26,7 @@ router.get('/getSubject', (req, res) => {
 
 //获取某科目某章节的所有题目
 router.get('/getChapter', (req, res) => {
-    let obj = req.body;
+    let obj = req.query;
     if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
@@ -46,17 +35,7 @@ router.get('/getChapter', (req, res) => {
         respondDBErr(err, res);
         let data = [];
         resObj.forEach(item => {
-            data.push({
-                type: item.type,
-                quesNumber: item.quesNumber,
-                question: item.question,
-                A: item.A,
-                B: item.B,
-                C: item.C, 
-                D: item.D,
-                answer: item.answer,
-                tip: item.tip
-            });
+            data.push(item);
         });
         respondMsg(res, 0, '查询成功', data);
     })
@@ -80,28 +59,26 @@ router.get('/getRandom', (req, res) => {
             //题目arr[tmp]的正确率
             let item = arr[tmp];
             //做过此题的人数
-            Record.countDocuments({
-                subject: item.subject, chapterNumber: item.chapterNumber, type: item.type, 
-                quesNumber: item.quesNumber}, (err, countDone) => {
+            Record.countDocuments({quesID: item.id}, (err, countDone) => {
                 respondDBErr(err, res);
                 //做错此题的人数
-                Record.countDocuments({ subject: item.subject, chapterNumber: item.chapterNumber, 
-                    type: item.type, quesNumber: item.quesNumber, isWrong: true}, (err, countFaulty) => {
+                Record.countDocuments({quesID: item.id, isWrong: true}, (err, countFaulty) => {
                     respondDBErr(err, res);
                     item.correctRate = countDone == 0 ? 0: (countDone - countFaulty) / countDone;
                     data.push({
                         correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100),
+                        id: item.id,
                         subject: item.subject,
-                        chapter: item.chapter,
+                        chapter: item.chapter,
                         type: item.type,
-                        quesNumber: item.quesNumber,
-                        question: item.question,
-                        A: item.A,
-                        B: item.B,
-                        C: item.C, 
-                        D: item.D,
-                        answer: item.answer,
-                        tip:item.tip
+                        quesNumber: item.quesNumber,
+                        question: item.question,
+                        A: item.A,
+                        B: item.B,
+                        C: item.C, 
+                        D: item.D,
+                        answer: item.answer,
+                        tip:item.tip
                     });
                     if(data.length == 20) {
                         respondMsg(res, 0, '查询成功', data);
@@ -109,7 +86,7 @@ router.get('/getRandom', (req, res) => {
                 })
             });
         }
-    })
+    });
 })
 
 //获取一套模拟题（单选16道，多选17道）
@@ -159,15 +136,17 @@ router.post('/getWrong', (req, res) => {
         respondDBErr(err, res);
         let data = [];
         countWrongRecords(obj).then(count => {
+            if(count == 0) {
+                respondMsg(res, 1, '无错题记录', data);
+                return;
+            }
             resObj1.forEach(record => {
-                Question.findOne({subject: record.subject, chapterNumber: record.chapterNumber, 
-                    type: record.type, quesNumber: record.quesNumber}, (err, resObj2) => {
-                        respondDBErr(err, res);
-                        console.log(resObj2)
-                        data.push(resObj2);
-                        if(data.length == count) {
-                            respondMsg(res, 0, '查询成功', data)
-                        }
+                Question.findOne({id: record.quesID}, (err, resObj2) => {
+                    respondDBErr(err, res);
+                    data.push(resObj2);
+                    if(data.length == count) {
+                        respondMsg(res, 0, '查询成功', data)
+                    }
                 });
             })
         })

@@ -22,18 +22,61 @@ const db = mongoose.connection;
 
 //集合规则
 const questionSchema = new mongoose.Schema({
-    subject: Number,
-    chapterNumber: Number,
-    chapter: String,
-    type: Number,
-    quesNumber: Number,
-    question: String,
-    A: String,
-    B: String,
-    C: String, 
-    D: String,
-    answer: String,
-    tip: String
+    id: {
+        type: Number,
+        required: true,
+        unique: true
+    },
+    subject: {
+        type: Number,
+        required: true,
+        enum: [1, 2, 3, 4]
+    },
+    chapterNumber: {
+        type: Number,
+        required: true
+    },
+    chapter: {
+        type: String,
+        required: true
+    },
+    type: {
+        type: Number,
+        required: true,
+        enum: [1, 2]
+    },
+    quesNumber: {
+        type: Number,
+        required: true
+    },
+    question: {
+        type: String,
+        required: true
+    },
+    A: {
+        type: String,
+        required: true
+    },
+    B: {
+        type: String,
+        required: true
+    },
+    C: {
+        type: String,
+        required: true
+    }, 
+    D: {
+        type: String,
+        required: true
+    },
+    answer: {
+        type: String,
+        required: true
+    },
+    tip: {
+        type: String,
+        required: true
+    }
 })
 const userInfoSchema = new mongoose.Schema({
     openID: {
@@ -59,14 +102,23 @@ const userInfoSchema = new mongoose.Schema({
     }
 })
 const recordSchema = new mongoose.Schema({
-    openID: String,
-    subject: String,
-    chapterNumber: Number,
-    type: String,
-    quesNumber: Number,
+    openID: {
+        type: String,
+        required: true,
+    },
+    quesID: {
+        type: Number,
+        required: true,
+    },
     note: String,
-    isWrong: Boolean,
-    isCollected: Boolean
+    isWrong: {
+        type: Boolean,
+        default: false
+    },
+    isCollected: {
+        type: Boolean,
+        default: false
+    }
 })
 
 //创建集合并应用规则
