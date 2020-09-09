@@ -5,7 +5,7 @@ const { SUBJECTS } = require('../util/const');
 const { respondDBErr, respondMsg } = require('../util/response');
 const { UserInfo, Question, Record } = require('../util/dbcon');
 const { verifySubject, verifyQuestionID } = require('../util/verifyData')
-const { sortByChapter,  } = require('../util/processData');
+const { sortByChapter } = require('../util/processData');
 
 
 //标记错题
@@ -18,11 +18,17 @@ router.post('/markFaulty', (req, res) => {
         }
         //是否有此记录
         Record.findOne({openID: obj.openID, quesID: obj.id}, (err, resObj1) => {
-            respondDBErr(err, res);
+            if(err) {
+                respondMsg(res, 1, '数据库操作失败');
+                return;
+            }
             if(!resObj1) {
                 //添加记录
                 Record.create({openID: obj.openID, quesID: obj.id, isWrong: true}, (err, resObj2) => {
-                    respondDBErr(err, res);
+                    if(err) {
+                        respondMsg(res, 1, '数据库操作失败');
+                        return;
+                    }
                     respondMsg(res, 0, '成功添加错题记录');
                 });
                 return;
@@ -30,7 +36,10 @@ router.post('/markFaulty', (req, res) => {
             //修改记录
             else {
                 Record.updateOne({openID: obj.openID, quesID: obj.id}, {isWrong: true}, (err, resObj2) => {
-                    respondDBErr(err, res);
+                    if(err) {
+                        respondMsg(res, 1, '数据库操作失败');
+                        return;
+                    }
                     respondMsg(res, 0, '成功修改错题记录');
                 })
             }
@@ -48,18 +57,27 @@ router.post('/collect', (req, res) => {
         }
         //查询是否有此题的记录
         Record.findOne({ openID: obj.openID, quesID: obj.id}, (err, resObj) => {
-            respondDBErr(err, res);
+            if(err) {
+                respondMsg(res, 1, '数据库操作失败');
+                return;
+            }
             //更新记录内容
             if(resObj) {
                 Record.updateOne({ openID: obj.openID, quesID: obj.id}, {isCollected: true}, (err, resObj) => {
-                    respondDBErr(err, res);
+                    if(err) {
+                        respondMsg(res, 1, '数据库操作失败');
+                        return;
+                    }
                     respondMsg(res, 0, '成功收藏此题')
                 })
             }
             //添加记录
             else {
                 Record.create({ openID: obj.openID, quesID: obj.id, isCollected: true}, (err, resObj) => {
-                    respondDBErr(err, res);
+                    if(err) {
+                        respondMsg(res, 1, '数据库操作失败');
+                        return;
+                    }
                     respondMsg(res, 0, '成功收藏此题')
                 })
             }
@@ -77,7 +95,10 @@ router.post('/markDone', (req, res) => {
         }
         //查询是否有此题的记录
         Record.findOne({ openID: obj.openID, quesID: obj.id}, (err, resObj1) => {
-            respondDBErr(err, res);
+            if(err) {
+                respondMsg(res, 1, '数据库操作失败');
+                return;
+            }
             //如果此题已经做过
             if (resObj1) {
                 respondMsg(res, 0, '此题已做过')
@@ -85,7 +106,10 @@ router.post('/markDone', (req, res) => {
             }
             else {
                 Record.create({ openID: obj.openID, quesID: obj.id}, (err, resObj2) => {
-                    respondDBErr(err, res);
+                    if(err) {
+                        respondMsg(res, 1, '数据库操作失败');
+                        return;
+                    }
                     respondMsg(res, 0, '标记成功')
                 })
             }
@@ -98,11 +122,17 @@ router.post('/cancelCollection', (req, res) => {
     let obj = req.body;
     //查询是否有此题的收藏记录
     Record.findOne({ openID: obj.openID, quesID: obj.id, isCollected: true}, (err, resObj1) => {
-        respondDBErr(err, res);
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
         //取消收藏
         if(resObj1) {
             Record.updateOne({openID: obj.openID, quesID: obj.id}, {isCollected: false}, (err, resObj2) => {
-                respondDBErr(err, res);
+                if(err) {
+                    respondMsg(res, 1, '数据库操作失败');
+                    return;
+                }
                 respondMsg(res, 0, '成功取消收藏');
             })
             return;
@@ -119,7 +149,10 @@ router.post('/totalProgress', (req, res) => {
     let obj = req.body;
     let data = [];
     UserInfo.findOne({openID: obj.openID}, (err, resObj1) => {
-        respondDBErr(err, res);
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
         if(!resObj1) {
             respondMsg(res, 1, '用户不存在');
             return;
@@ -127,7 +160,10 @@ router.post('/totalProgress', (req, res) => {
         for(let i = 1; i <= SUBJECTS.length; i++) {
             //各科目总题数countQuestion
             Question.countDocuments({subject: i}, (err, countQuestion) => {
-                respondDBErr(err, res);
+                if(err) {
+                    respondMsg(res, 1, '数据库操作失败');
+                    return;
+                }
                 //表连接
                 Record.aggregate([
                     {
@@ -164,7 +200,7 @@ router.post('/totalProgress', (req, res) => {
     })
 })
 
-//（暂未）某科目各章总题数+每章做过的题数
+//某科目各章总题数+每章做过的题数
 router.post('/chapterProgress', (req, res) => {
     let obj = req.body;
     if(!verifySubject(obj.subject)) {
@@ -174,15 +210,24 @@ router.post('/chapterProgress', (req, res) => {
     let data = [];
     //总章节数chapterNum
     Question.find({subject: obj.subject}, (err, resObj1) => {
-        respondDBErr(err, res);
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
         let chapterNum = resObj1[0].chapterNumber, data = [];
         for(let i = 1; i <= chapterNum; i++) {
             //章节题目数chapterQuestionNum
             Question.countDocuments({subject: obj.subject, chapterNumber: i}, (err, chapterQuestionNum) => {
-                respondDBErr(err, res);
+                if(err) {
+                    respondMsg(res, 1, '数据库操作失败');
+                    return;
+                }
                 //章节名chapter
                 Question.findOne({subject: obj.subject, chapterNumber: i}, (err, resObj3) => {
-                    respondDBErr(err, res);
+                    if(err) {
+                        respondMsg(res, 1, '数据库操作失败');
+                        return;
+                    }
                     let chapter = resObj3.chapter;
                     //每章节做过的题数
                     Record.aggregate([
@@ -224,15 +269,77 @@ router.get('/getCorrectRate', (req, res) => {
     let obj = req.query;
     //做过此题的人数
     Record.countDocuments({quesID: obj.id}, (err, countDone) => {
-        respondDBErr(err, res);
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
         //做错此题的人数
         Record.countDocuments({quesID: obj.id, isWrong: true}, (err, countFaulty) => {
-            respondDBErr(err, res);
+            if(err) {
+                respondMsg(res, 1, '数据库操作失败');
+                return;
+            }
             respondMsg(res, 0, '查询成功', {
                 correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100)
             })
         })
     })
+})
+
+//某道题是否收藏
+router.post('/isCollected', (req, res) => {
+    let obj = req.body;
+    Record.findOne({openID: obj.openID, quesID: obj.id}, (err, resObj) => {
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
+        if(!resObj) {
+            respondMsg(res, 1, '此题未做过');
+            return;
+        }
+        respondMsg(res, 0, '查询成功', resObj.isCollected);
+    })
+})
+
+//模拟题做题结果
+router.post('/saveSimulationResult', (req, res) => {
+    let obj = req.body;
+    let results = obj.isWrong, ids = obj.id;
+    if(results.length != ids.length){
+        respondMsg(res, 1, '参数错误');
+        return;
+    }
+    let len = results.length, times = 0;
+    for(let i = 0; i < len; i++){
+        Record.findOne({openID: obj.openID, quesID: ids[i]}, (err, resObj1) => {
+            if(err) {
+                respondMsg(res, 1, '数据库操作失败');
+                return;
+            }
+            if(resObj1) {
+                Record.updateOne({openID: obj.openID, quesID: ids[i]}, {isWrong: results[i]}, (err, resObj2) => {
+                    if(err) {
+                        respondMsg(res, 1, '数据库操作失败');
+                        return;
+                    }
+                })
+            }
+            else {
+                Record.create({openID: obj.openID, quesID: ids[i], isWrong: results[i]}, (err, resObj2) => {
+                    if(err) {
+                        console.log(results[i]+'*'+ids[i])
+                        respondMsg(res, 1, '数据库操作失败');
+                        return;
+                    }
+                })
+            }
+            times++;
+            if(times == len) {
+                respondMsg(res, 0, '存储成功');
+            }
+        })
+    }
 })
 
 

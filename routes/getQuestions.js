@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const router = express.Router()
 
 const { Question, Record } = require('../util/dbcon')
-const { respondDBErr, respondMsg } = require('../util/response');
+const { respondMsg, respondDBErr } = require('../util/response');
 const { verifySubject } = require('../util/verifyData')
 const { countWrongRecords } = require('../util/processData')
 
@@ -15,7 +15,10 @@ router.get('/getSubject', (req, res) => {
         return;
     }
     Question.find({subject: obj.subject}, null, {chapterNumber: 1, quesNumber: 1}, (err, resObj) => {
-        respondDBErr(err, res);
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
         let data = [];
         resObj.forEach(item => {
             data.push(item)
@@ -32,7 +35,10 @@ router.get('/getChapter', (req, res) => {
         return;
     }
     Question.find({subject: obj.subject, chapterNumber: obj.chapterNumber}, null, {chapterNumber: 1, quesNumber: 1}, (err, resObj) => {
-        respondDBErr(err, res);
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
         let data = [];
         resObj.forEach(item => {
             data.push(item);
@@ -44,7 +50,10 @@ router.get('/getChapter', (req, res) => {
 //获取随机的20道题
 router.get('/getRandom', (req, res) => {
     Question.find((err, resObj) => {
-        respondDBErr(err, res);
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
         let arr = [];
         resObj.forEach(item => {
             arr.push(item);
@@ -60,10 +69,16 @@ router.get('/getRandom', (req, res) => {
             let item = arr[tmp];
             //做过此题的人数
             Record.countDocuments({quesID: item.id}, (err, countDone) => {
-                respondDBErr(err, res);
+                if(err) {
+                    respondMsg(res, 1, '数据库操作失败');
+                    return;
+                }
                 //做错此题的人数
                 Record.countDocuments({quesID: item.id, isWrong: true}, (err, countFaulty) => {
-                    respondDBErr(err, res);
+                    if(err) {
+                        respondMsg(res, 1, '数据库操作失败');
+                        return;
+                    }
                     item.correctRate = countDone == 0 ? 0: (countDone - countFaulty) / countDone;
                     data.push({
                         correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100),
@@ -93,7 +108,10 @@ router.get('/getRandom', (req, res) => {
 router.get('/getSimulation', (req, res) => {
     //单选
     Question.find((err, resObj) => {
-        respondDBErr(err, res);
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
         let arr = [];
         resObj.forEach(item => {
             arr.push(item);
@@ -132,25 +150,111 @@ router.get('/getSimulation', (req, res) => {
 //错题重练（随机20道， 小于则全返回）
 router.post('/getWrong', (req, res) => {
     let obj = req.body;
-    Record.find({openID: obj.openID, isWrong: true}, (err, resObj1) => {
-        respondDBErr(err, res);
-        let data = [];
-        countWrongRecords(obj).then(count => {
-            if(count == 0) {
-                respondMsg(res, 1, '无错题记录', data);
-                return;
+    Record.aggregate([
+        {
+            $lookup: {
+                from: 'questions',
+                localField: 'quesID',
+                foreignField: 'id',
+                as: 'wrong'
             }
-            resObj1.forEach(record => {
-                Question.findOne({id: record.quesID}, (err, resObj2) => {
-                    respondDBErr(err, res);
-                    data.push(resObj2);
-                    if(data.length == count) {
-                        respondMsg(res, 0, '查询成功', data)
-                    }
-                });
-            })
+        },
+        {$match: {openID: obj.openID, isWrong: true}},
+        {$unwind: '$wrong'},
+        // {$limit: 20}
+    ]).exec((err, records) => {
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
+        if(records.length == 0) {
+            respondMsg(res, 1, '暂无错题记录');
+            return;
+        }
+        let arr = [];
+        records.forEach((item, index) => {
+            arr.push({
+                id: item.quesID,
+                isCollected: item.isCollected,
+                subject: item.wrong.subject,
+                chapter: item.wrong.chapter,
+                type: item.wrong.type,
+                quesNumber: item.wrong.quesNumber,
+                question: item.wrong.question,
+                A: item.wrong.A,
+                B: item.wrong.B,
+                C: item.wrong.C, 
+                D: item.wrong.D,
+                answer: item.wrong.answer,
+                tip: item.wrong.tip
+            });
+        });
+        let len = arr.length;
+        if(len < 20) {
+            for(let i = len - 1; i >= 0; i--) {
+                let rand = Math.floor(Math.random() * len);
+                let tmp = arr[i];
+                arr[i] = arr[rand];
+                arr[rand] = tmp;
+            }
+            respondMsg(res, 0, '查询成功', arr);
+        }
+        else {
+            let data = [], randArr = [];
+            while(data.length < 20) {
+                let rand = Math.floor(Math.random() * len);
+                if(!randArr.includes(rand)) {
+                    randArr.push(rand);
+                    data.push(arr[rand]);
+                }
+            }
+            respondMsg(res, 0, '查询成功', data);
+        }
+    })
+})
+
+//获取收藏的题目
+router.post('/getCollected', (req, res) => {
+    let obj = req.body;
+    Record.aggregate([
+        {
+            $lookup: {
+                from: 'questions',
+                localField: 'quesID',
+                foreignField: 'id',
+                as: 'collected'
+            }
+        },
+        {$match: {openID: obj.openID, isCollected: true}},
+        {$unwind: '$collected'}
+    ]).exec((err, records) => {
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        };
+        if(records.length == 0){
+            respondMsg(res, 1, '暂无笔记');
+            return;
+        }
+        let data = [];
+        records.forEach((item) => {
+            data.push({
+                id: item.quesID,
+                chapterNumber: item.collected.chapterNumber,
+                chapter: item.collected.chapter,
+                type: item.collected.type,
+                quesNumber: item.collected.quesNumber,
+                question: item.collected.question,
+                A: item.collected.A,
+                B: item.collected.B,
+                C: item.collected.C, 
+                D: item.collected.D,
+                answer: item.collected.answer,
+                tip: item.collected.tip
+            });
         })
-    }).limit(20);
+        respondMsg(res, 0, '查询成功', data);
+    })
 })
 
 module.exports = router

@@ -1,5 +1,5 @@
 const { Question } = require('../util/dbcon');
-
+const {TYPE_VALUES, SUBJECT_VALUES, GENDER_VALUES} =  require('./const')
 
 //openID是否合法
 function verifyOpenID(openID) {
@@ -11,10 +11,10 @@ function verifyOpenID(openID) {
 
 //性别输入是否合法
 function verifyGender(gender) {
-    if(gender != 1 && gender != 2) {
-        return false;
+    if(GENDER_VALUES.includes(gender)) {
+        return true;
     }
-    return true;
+    return false;
 }
 
 //输入是否为数字
@@ -28,16 +28,15 @@ function isNumber(data) {
 
 //科目输入是否合法
 function verifySubject(subject) {
-    if([1, 2, 3, 4].includes(parseInt(subject))) {
+    if(SUBJECT_VALUES.includes(parseInt(subject))) {
         return true;
     }
     return false;
 }
 
-
 //类型输入是否合法
 function verifyType(type) {
-    if([1, 2].includes(parseInt(type))) {
+    if(TYPE_VALUES.includes(parseInt(type))) {
         return true;
     }
     return false;
@@ -53,7 +52,6 @@ function questionTotalNum(res) {
 
 function verifyQuestionID(res, id) {
     if(!isNumber(id)){
-        console.log(11111)
         return false;
     }
     return questionTotalNum(res, id)

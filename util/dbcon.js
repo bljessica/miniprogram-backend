@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 
 const url = 'mongodb://localhost/ques'
+const {TYPE_VALUES, SUBJECT_VALUES, GENDER_VALUES} =  require('../util/const')
+
 
 //创建集合
 function createSet(dbase, setName) {
@@ -14,6 +16,7 @@ function createSet(dbase, setName) {
     })
 }
 
+mongoose.set('useCreateIndex', true);
 mongoose.connect(url, {useUnifiedTopology: true, useNewUrlParser: true})
     .then(() => console.log('数据库连接成功'))
     .catch((err) => console.log('数据库连接失败'))
@@ -30,7 +33,7 @@ const questionSchema = new mongoose.Schema({
     subject: {
         type: Number,
         required: true,
-        enum: [1, 2, 3, 4]
+        enum: SUBJECT_VALUES
     },
     chapterNumber: {
         type: Number,
@@ -43,7 +46,7 @@ const questionSchema = new mongoose.Schema({
     type: {
         type: Number,
         required: true,
-        enum: [1, 2]
+        enum: TYPE_VALUES
     },
     quesNumber: {
         type: Number,
@@ -87,7 +90,7 @@ const userInfoSchema = new mongoose.Schema({
     nickname: String,
     gender: {
         type: Number,
-        enum: [1, 2]
+        enum: GENDER_VALUES
     },
     school: String,
     goal: Number,
@@ -111,6 +114,10 @@ const recordSchema = new mongoose.Schema({
         required: true,
     },
     note: String,
+    noteCreatedTime: {
+        type: Date,
+        default: Date.now
+    },
     isWrong: {
         type: Boolean,
         default: false
