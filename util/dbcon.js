@@ -77,8 +77,7 @@ const questionSchema = new mongoose.Schema({
         required: true
     },
     tip: {
-        type: String,
-        required: true
+        type: String
     }
 })
 const userInfoSchema = new mongoose.Schema({
@@ -125,6 +124,10 @@ const recordSchema = new mongoose.Schema({
     isCollected: {
         type: Boolean,
         default: false
+    },
+    collectedTime: {
+        type: Date,
+        default: Date.now
     }
 })
 

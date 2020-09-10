@@ -63,7 +63,7 @@ router.post('/collect', (req, res) => {
             }
             //更新记录内容
             if(resObj) {
-                Record.updateOne({ openID: obj.openID, quesID: obj.id}, {isCollected: true}, (err, resObj) => {
+                Record.updateOne({ openID: obj.openID, quesID: obj.id}, {isCollected: true, collectedTime: Date.now()}, (err, resObj) => {
                     if(err) {
                         respondMsg(res, 1, '数据库操作失败');
                         return;
@@ -73,7 +73,7 @@ router.post('/collect', (req, res) => {
             }
             //添加记录
             else {
-                Record.create({ openID: obj.openID, quesID: obj.id, isCollected: true}, (err, resObj) => {
+                Record.create({ openID: obj.openID, quesID: obj.id, isCollected: true, collectedTime: Date.now()}, (err, resObj) => {
                     if(err) {
                         respondMsg(res, 1, '数据库操作失败');
                         return;

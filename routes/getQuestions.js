@@ -1,5 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const moment = require('moment')
 const router = express.Router()
 
 const { Question, Record } = require('../util/dbcon')
@@ -216,6 +217,10 @@ router.post('/getWrong', (req, res) => {
 //获取收藏的题目
 router.post('/getCollected', (req, res) => {
     let obj = req.body;
+    if(!verifySubject(obj.subject)) {
+        respondMsg(res, 1, '科目输入不合法');
+        return;
+    }
     Record.aggregate([
         {
             $lookup: {
@@ -225,7 +230,7 @@ router.post('/getCollected', (req, res) => {
                 as: 'collected'
             }
         },
-        {$match: {openID: obj.openID, isCollected: true}},
+        {$match: {openID: obj.openID, isCollected: true, 'collected.subject': obj.subject}},
         {$unwind: '$collected'}
     ]).exec((err, records) => {
         if(err) {
@@ -233,13 +238,14 @@ router.post('/getCollected', (req, res) => {
             return;
         };
         if(records.length == 0){
-            respondMsg(res, 1, '暂无笔记');
+            respondMsg(res, 1, '暂无收藏的题目');
             return;
         }
         let data = [];
         records.forEach((item) => {
             data.push({
                 id: item.quesID,
+                collectedTime: moment(item.collectedTime).format('YYYY-MM-DD HH:mm'),
                 chapterNumber: item.collected.chapterNumber,
                 chapter: item.collected.chapter,
                 type: item.collected.type,
@@ -255,6 +261,41 @@ router.post('/getCollected', (req, res) => {
         })
         respondMsg(res, 0, '查询成功', data);
     })
+})
+
+//获取某题目内容
+router.post('/getOneQuestion', (req, res) => {
+    let obj = req.body;
+    verifyQuestionID(res, obj.id).then((isEffective) => {
+        if(!isEffective) {
+            respondMsg(res, 1, '题目id不合法');
+            return;
+        }
+        Rocord.aggregate([
+            {
+                $lookup: {
+                    from: 'questions',
+                    localField: 'quesID',
+                    foreignField: 'id',
+                    as: 'question'
+                }
+            },
+            {$unwind: '$question'},
+            {$match: {openID: obj.openID, quesID: obj.id}}
+        ]).exec((err, records) => {
+            if(err) {
+                respondMsg(res, 1, '数据库操作失败');
+                return;
+            }
+            if(records.length == 0){
+                respondMsg(res, 1, '无收藏记录或笔记');
+                return;
+            }
+            // respondMsg(res, 0, '查询成功', {
+
+            // })
+        })
+    });
 })
 
 module.exports = router
