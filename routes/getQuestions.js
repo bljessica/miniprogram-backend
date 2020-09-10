@@ -5,7 +5,7 @@ const router = express.Router()
 
 const { Question, Record } = require('../util/dbcon')
 const { respondMsg, respondDBErr } = require('../util/response');
-const { verifySubject } = require('../util/verifyData')
+const { verifySubject, verifyQuestionID } = require('../util/verifyData')
 const { countWrongRecords } = require('../util/processData')
 
 //获取某科目的所有题目
@@ -271,7 +271,7 @@ router.post('/getOneQuestion', (req, res) => {
             respondMsg(res, 1, '题目id不合法');
             return;
         }
-        Rocord.aggregate([
+        Record.aggregate([
             {
                 $lookup: {
                     from: 'questions',
@@ -288,12 +288,36 @@ router.post('/getOneQuestion', (req, res) => {
                 return;
             }
             if(records.length == 0){
-                respondMsg(res, 1, '无收藏记录或笔记');
-                return;
+                Question.findOne({id: obj.id}, (err, resObj) => {
+                    if(err){
+                        respondMsg(res, 1, '数据库操作失败');
+                        return;
+                    }
+                    respondMsg(res, 0, '无收藏记录或笔记', resObj);
+                    return;
+                })
             }
-            // respondMsg(res, 0, '查询成功', {
-
-            // })
+            else {
+                let record = records[0];
+                respondMsg(res, 0, '查询成功', {
+                    id: record.quesID,
+                    chapterNumber: record.question.chapterNumber,
+                    chapter: record.question.chapter,
+                    type: record.question.type,
+                    quesNumber: record.question.quesNumber,
+                    question: record.question.question,
+                    A: record.question.A,
+                    B: record.question.B,
+                    C: record.question.C, 
+                    D: record.question.D,
+                    answer: record.question.answer,
+                    tip: record.question.tip,
+                    isCollected: record.isCollected,
+                    isWrong: record.isWrong,
+                    note: record.note == null? null: record.note,
+                    noteCreatedTime: record.note == null? null: moment(record.noteCreatedTime).format('YYYY-MM-DD HH:mm')
+                })
+            }
         })
     });
 })
