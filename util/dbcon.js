@@ -130,9 +130,13 @@ const recordSchema = new mongoose.Schema({
         default: Date.now
     }
 })
+const noticeSchema = new mongoose.Schema({
+    content: String
+})
 
 //创建集合并应用规则
 exports.Question = mongoose.model('Question', questionSchema);
 exports.UserInfo = mongoose.model('Userinfo', userInfoSchema);
 exports.Record = mongoose.model('Record', recordSchema);
+exports.Notice = mongoose.model('Notice', noticeSchema);
 

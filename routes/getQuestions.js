@@ -322,4 +322,38 @@ router.post('/getOneQuestion', (req, res) => {
     });
 })
 
+//获取某科目下的所有章节名
+router.get('/getChapterNames', (req, res) => {
+    let obj = req.query;
+    if(!verifySubject(obj.subject)) {
+        respondMsg(res, 1, '科目输入不合法');
+        return;
+    }
+    Question.distinct('chapterNumber', {subject: obj.subject}, (err, chapterNumberArr) => {
+        if(err){
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
+        let data = [], len = chapterNumberArr.length;
+        chapterNumberArr.forEach(index => {
+            Question.findOne({chapterNumber: index, subject: obj.subject}, (err, resObj) => {
+                if(err){
+                    respondMsg(res, 1, '数据库操作失败');
+                    return;
+                }
+                data.push({
+                    chapterNumber: index,
+                    chapter: resObj.chapter
+                })
+                if(data.length == len) {
+                    data.sort((a, b) => {
+                        return a.chapterNumber - b.chapterNumber;
+                    })
+                    respondMsg(res, 0, '查询成功', data);
+                }
+            })
+        })
+    })
+})
+
 module.exports = router
