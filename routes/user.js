@@ -170,6 +170,7 @@ router.post('/getUserInfo', (req, res) => {
                 school: resObj.school, 
                 goal: resObj.goal, 
                 motto: resObj.motto, 
+                isAdmin: resObj.isAdmin,
                 daysOfPersistence: resObj.daysOfPersistence});
         }
         //openID不存在

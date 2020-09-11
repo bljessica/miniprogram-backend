@@ -2,10 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser')
 
 const user = require('./routes/user')
-const getQuestions = require('./routes/getQuestions')
-const records = require('./routes/records')
-const notes = require('./routes/notes')
+const getQuestion = require('./routes/getQuestion')
+const record = require('./routes/record')
+const note = require('./routes/note')
 const notice = require('./routes/notice')
+const admin = require('./routes/admin')
 
 const app = express();
 // app.use(express.static('public'))
@@ -14,10 +15,11 @@ app.use(bodyParser.urlencoded({extended: false}));//解析form表单字段(Conte
 
 //挂载路由
 app.use('/user/', user)
-app.use('/ques/', getQuestions)
-app.use('/record/', records)
-app.use('/note/', notes)
+app.use('/ques/', getQuestion)
+app.use('/record/', record)
+app.use('/note/', note)
 app.use('/notice/', notice)
+app.use('/admin/', admin)
 
 
 const server = app.listen(3000, '0.0.0.0', () => {
