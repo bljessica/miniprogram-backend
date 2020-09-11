@@ -22,33 +22,41 @@ router.post('/markFaulty', (req, res) => {
                 respondMsg(res, 1, '数据库操作失败');
                 return;
             }
+            //未做过
             if(!resObj1) {
-                //添加记录
+                //添加错题记录
                 Record.create({openID: obj.openID, quesID: obj.id, isWrong: true}, (err, resObj2) => {
                     if(err) {
                         respondMsg(res, 1, '数据库操作失败');
                         return;
                     }
-                    Question.updateOne({id: obj.id}, {'$inc': {wrongNum: 1, doneNum: 1}}, (err, resObj3) => {
+                    UserInfo.updateOne({openID: obj.openID}, {'$inc': {wrongQuesNum: 1, doneQuesNum: 1}}, (err, resObj5) => {
                         if(err) {
                             respondMsg(res, 1, '数据库操作失败');
                             return;
                         }
-                        Question.findOne({id: obj.id}, (err, resObj4) => {
+                        Question.updateOne({id: obj.id}, {'$inc': {wrongNum: 1, doneNum: 1}}, (err, resObj3) => {
                             if(err) {
                                 respondMsg(res, 1, '数据库操作失败');
                                 return;
                             }
-                            respondMsg(res, 0, '成功添加错题记录', {
-                                correctRate: resObj4.doneNum == 0? 0: parseInt((resObj4.doneNum - resObj4.wrongNum) / resObj4.doneNum * 100)
-                            });
-                            return;
+                            Question.findOne({id: obj.id}, (err, resObj4) => {
+                                if(err) {
+                                    respondMsg(res, 1, '数据库操作失败');
+                                    return;
+                                }
+                                respondMsg(res, 0, '成功添加错题记录', {
+                                    correctRate: resObj4.doneNum == 0? 0: parseInt((resObj4.doneNum - resObj4.wrongNum) / resObj4.doneNum * 100)
+                                });
+                                return;
+                            })
                         })
-                    })    
+                    })
                 });
             }
-            //修改记录
+            //做过，修改记录
             else {
+                //之前做错了
                 if(resObj1.isWrong == true) {
                     Question.findOne({id: obj.id}, (err, resObj4) => {
                         if(err) {
@@ -61,29 +69,36 @@ router.post('/markFaulty', (req, res) => {
                         return;
                     })
                 }
+                //之前做对了
                 else {
-                    Record.updateOne({openID: obj.openID, quesID: obj.id}, {isWrong: true}, (err, resObj2) => {
+                    UserInfo.updateOne({openID: obj.openID}, {'$inc': {wrongQuesNum: 1}}, (err, resObj5) => {
                         if(err) {
                             respondMsg(res, 1, '数据库操作失败');
                             return;
                         }
-                        Question.updateOne({id: obj.id}, {'$inc': {wrongNum: 1}}, (err, resObj3) => {
+                        Record.updateOne({openID: obj.openID, quesID: obj.id}, {isWrong: true}, (err, resObj2) => {
                             if(err) {
                                 respondMsg(res, 1, '数据库操作失败');
                                 return;
                             }
-                            Question.findOne({id: obj.id}, (err, resObj4) => {
+                            Question.updateOne({id: obj.id}, {'$inc': {wrongNum: 1}}, (err, resObj3) => {
                                 if(err) {
                                     respondMsg(res, 1, '数据库操作失败');
                                     return;
                                 }
-                                respondMsg(res, 0, '成功修改错题记录', {
-                                    correctRate: resObj4.doneNum == 0? 0: parseInt((resObj4.doneNum - resObj4.wrongNum) / resObj4.doneNum * 100)
-                                });
-                                return;
-                            })
-                            
-                        }) 
+                                Question.findOne({id: obj.id}, (err, resObj4) => {
+                                    if(err) {
+                                        respondMsg(res, 1, '数据库操作失败');
+                                        return;
+                                    }
+                                    respondMsg(res, 0, '成功修改错题记录', {
+                                        correctRate: resObj4.doneNum == 0? 0: parseInt((resObj4.doneNum - resObj4.wrongNum) / resObj4.doneNum * 100)
+                                    });
+                                    return;
+                                })
+                                
+                            }) 
+                        })
                     })
                 }
             }
@@ -145,25 +160,39 @@ router.post('/markDone', (req, res) => {
             }
             //如果此题已经做过
             if (resObj1) {
+                //原来做错
                 if(resObj1.isWrong == true) {
-                    Question.updateOne({id: obj.id}, {'$inc': {wrongNum: -1}}, (err, resObj2) => {
+                    Record.updateOne({openID: obj.openID, quesID: obj.id}, {isWrong: false}, (err, resObj) => {
                         if(err) {
                             respondMsg(res, 1, '数据库操作失败');
                             return;
                         }
-                        Question.findOne({id: obj.id}, (err, resObj3) => {
+                        UserInfo.updateOne({openID: obj.openID}, {'$inc': {wrongQuesNum: -1}}, (err, resObj5) => {
                             if(err) {
                                 respondMsg(res, 1, '数据库操作失败');
                                 return;
                             }
-                            respondMsg(res, 0, '此题已做过', {
-                                correctRate: resObj3.doneNum == 0? 0: parseInt((resObj3.doneNum - resObj3.wrongNum) / resObj3.doneNum * 100)
-                            });
-                            return;
+                            Question.updateOne({id: obj.id}, {'$inc': {wrongNum: -1}}, (err, resObj2) => {
+                                if(err) {
+                                    respondMsg(res, 1, '数据库操作失败');
+                                    return;
+                                }
+                                Question.findOne({id: obj.id}, (err, resObj3) => {
+                                    if(err) {
+                                        respondMsg(res, 1, '数据库操作失败');
+                                        return;
+                                    }
+                                    respondMsg(res, 0, '此题已做过', {
+                                        correctRate: resObj3.doneNum == 0? 0: parseInt((resObj3.doneNum - resObj3.wrongNum) / resObj3.doneNum * 100)
+                                    });
+                                    return;
+                                })
+                                
+                            }) 
                         })
-                        
-                    }) 
+                    })
                 }
+                //原来做对
                 else {
                     Question.findOne({id: obj.id}, (err, resObj3) => {
                         if(err) {
@@ -180,28 +209,34 @@ router.post('/markDone', (req, res) => {
             }
             //没做过
             else {
-                Record.create({ openID: obj.openID, quesID: obj.id}, (err, resObj2) => {
+                UserInfo.updateOne({openID: obj.openID}, {'$inc': {doneQuesNum: 1}}, (err, resObj5) => {
                     if(err) {
                         respondMsg(res, 1, '数据库操作失败');
                         return;
                     }
-                    Question.updateOne({id: obj.id}, {'$inc': {doneNum: 1}}, (err, resObj2) => {
+                    Record.create({ openID: obj.openID, quesID: obj.id}, (err, resObj2) => {
                         if(err) {
                             respondMsg(res, 1, '数据库操作失败');
                             return;
                         }
-                        Question.findOne({id: obj.id}, (err, resObj3) => {
+                        Question.updateOne({id: obj.id}, {'$inc': {doneNum: 1}}, (err, resObj2) => {
                             if(err) {
                                 respondMsg(res, 1, '数据库操作失败');
                                 return;
                             }
-                            respondMsg(res, 0, '标记成功', {
-                                correctRate: resObj3.doneNum == 0? 0: parseInt((resObj3.doneNum - resObj3.wrongNum) / resObj3.doneNum * 100)
-                            });
-                            return;
-                        })
-                        
-                    }) 
+                            Question.findOne({id: obj.id}, (err, resObj3) => {
+                                if(err) {
+                                    respondMsg(res, 1, '数据库操作失败');
+                                    return;
+                                }
+                                respondMsg(res, 0, '标记成功', {
+                                    correctRate: resObj3.doneNum == 0? 0: parseInt((resObj3.doneNum - resObj3.wrongNum) / resObj3.doneNum * 100)
+                                });
+                                return;
+                            })
+                            
+                        }) 
+                    })
                 })
             }
         })
@@ -334,9 +369,6 @@ router.post('/chapterProgress', (req, res) => {
                         },
                         {$unwind: '$dones'},
                         {$match: {openID: obj.openID, 'dones.subject': obj.subject, 'dones.chapterNumber': i}},
-                        // {$group: {_id: id,count: {$sum: 1}}},
-                        // {$match: {openID: obj.openID}},
-                        // {$num: 1}
                     ]).exec((err, records) => {
                         data.push({
                             chapterNumber: i,
@@ -432,17 +464,23 @@ router.post('/saveSimulationResult', (req, res) => {
                 if(resObj1.isWrong == true) {
                     //现在做对
                     if(results[i] == false) {
-                        Record.updateOneOne({openID: obj.openID, quesID: ids[i]}, {isWrong: results[i]}, (err, resObj2) => {
+                        UserInfo.updateOne({openID: obj.openID}, {'$inc': {wrongQuesNum: -1}}, (err, resObj5) => {
                             if(err) {
                                 respondMsg(res, 1, '数据库操作失败');
                                 return;
                             }
-                            Question.updateOne({id: ids[i]}, {'$inc': {wrongNum: -1}}, (err, resObj3) => {
+                            Record.updateOne({openID: obj.openID, quesID: ids[i]}, {isWrong: results[i]}, (err, resObj2) => {
                                 if(err) {
                                     respondMsg(res, 1, '数据库操作失败');
                                     return;
                                 }
-                            }) 
+                                Question.updateOne({id: ids[i]}, {'$inc': {wrongNum: -1}}, (err, resObj3) => {
+                                    if(err) {
+                                        respondMsg(res, 1, '数据库操作失败');
+                                        return;
+                                    }
+                                }) 
+                            })
                         })
                     }
                     //现在做错,不变
@@ -452,34 +490,49 @@ router.post('/saveSimulationResult', (req, res) => {
             else {
                 //现在做对
                 if(results[i] == false) {
-                    Record.create({openID: obj.openID, quesID: ids[i], isWrong: results[i]}, (err, resObj2) => {
+                    UserInfo.updateOne({openID: obj.openID}, {'$inc': {doneQuesNum: 1}}, (err, resObj5) => {
                         if(err) {
-                            // console.log(results[i]+'*'+ids[i])
                             respondMsg(res, 1, '数据库操作失败');
                             return;
                         }
-                        Question.updateOne({id: ids[i]}, {'$inc': {doneNum: 1}}, (err, resObj3) => {
+                        Record.create({openID: obj.openID, quesID: ids[i], isWrong: results[i]}, (err, resObj2) => {
                             if(err) {
                                 respondMsg(res, 1, '数据库操作失败');
                                 return;
                             }
-                        }) 
+                            Question.updateOne({id: ids[i]}, {'$inc': {doneNum: 1}}, (err, resObj3) => {
+                                if(err) {
+                                    respondMsg(res, 1, '数据库操作失败');
+                                    return;
+                                }
+                            }) 
+                        })
                     })
+                    
                 }
                 //现在做错
-                Record.create({openID: obj.openID, quesID: ids[i], isWrong: results[i]}, (err, resObj2) => {
-                    if(err) {
-                        console.log(results[i]+'*'+ids[i])
-                        respondMsg(res, 1, '数据库操作失败');
-                        return;
-                    }
-                    Question.updateOne({id: ids[i]}, {'$inc': {doneNum: 1, wrongNum: 1}}, (err, resObj3) => {
+                else {
+                    UserInfo.updateOne({openID: obj.openID}, {'$inc': {wrongQuesNum: 1, doneQuesNum: 1}}, (err, resObj5) => {
                         if(err) {
                             respondMsg(res, 1, '数据库操作失败');
                             return;
                         }
-                    }) 
-                })
+                        Record.create({openID: obj.openID, quesID: ids[i], isWrong: results[i]}, (err, resObj2) => {
+                            if(err) {
+                                console.log(results[i]+'*'+ids[i])
+                                respondMsg(res, 1, '数据库操作失败');
+                                return;
+                            }
+                            Question.updateOne({id: ids[i]}, {'$inc': {doneNum: 1, wrongNum: 1}}, (err, resObj3) => {
+                                if(err) {
+                                    respondMsg(res, 1, '数据库操作失败');
+                                    return;
+                                }
+                            }) 
+                        })
+                    })
+                }
+                
             }
             times++;
             if(times == len) {

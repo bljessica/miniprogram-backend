@@ -7,19 +7,6 @@ const { respondMsg } = require('../util/response');
 const { verifyOpenID, verifyGender, isNumber } = require('../util/verifyData');
 const { saveDaysOfPersistence } = require('../util/processData');
 
-// function saveDaysOfPersistence(res, obj, daysOfPersistence) {
-//     return new Promise((resolve, reject) => {
-//         UserInfo.update({openID: obj.openID}, {daysOfPersistence: daysOfPersistence}, (err, resObj) => {
-//             if(err) {
-//                 respondMsg(res, 1, '数据库操作失败');
-//                 return;
-//             }
-//             resolve();
-//         })
-//     })
-    
-// }
-
 //获取用户昵称
 router.post('/getUser', (req, res) => {
     let obj = req.body;
@@ -178,6 +165,17 @@ router.post('/getUserInfo', (req, res) => {
             respondMsg(res, 1, '用户不存在')
         }
     })
+})
+
+//刷题数量最多的20名用户
+router.get('/maxQuesRank', (req, res) => {
+    UserInfo.find({}, (err, users) => {
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
+        respondMsg(res, 0, '查询成功', users);
+    }).sort({doneQuesNum: -1}).limit(20);
 })
 
 module.exports = router

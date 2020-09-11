@@ -4,9 +4,9 @@ const moment = require('moment')
 const router = express.Router()
 
 const { Question, Record } = require('../util/dbcon')
-const { respondMsg, respondDBErr } = require('../util/response');
+const { respondMsg } = require('../util/response');
 const { verifySubject, verifyQuestionID, verifyType } = require('../util/verifyData')
-const { countWrongRecords, questionTotalNum } = require('../util/processData')
+const { questionTotalNum } = require('../util/processData')
 
 //获取某科目的所有题目
 router.get('/getSubject', (req, res) => {
@@ -49,25 +49,6 @@ router.get('/getChapter', (req, res) => {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
-    // Record.aggregate([
-    //     {
-    //         $lookup: {
-    //             from: 'questions',
-    //             localfield: 'quesID',
-    //             foreign: 'id',
-    //             as: 'questions'
-    //         }
-    //     },
-    //     {$unwind: '$questions'},
-    //     {$match: {subject: obj.subject, chapterNumber: obj.chapterNumber}},
-    //     {$group: {_id: isWrong, count: {$num: 1}}}
-    // ]).exec((err, records) => {
-    //     if(err) {
-    //         respondMsg(res, 1, '数据库操作失败');
-    //         return;
-    //     }
-
-    // })
     Question.find({subject: obj.subject, chapterNumber: obj.chapterNumber}, null, {chapterNumber: 1, quesNumber: 1}, (err, resObj) => {
         if(err) {
             respondMsg(res, 1, '数据库操作失败');
@@ -469,7 +450,6 @@ router.get('/getChapterNames', (req, res) => {
 //新增一道题目
 router.post('/createOneQuestion', (req, res) => {
     let obj = req.body;
-    console.log(req.body);
     if(!verifySubject(obj.subject)) {
         respondMsg(res, 1, '科目输入不合法');
         return;
@@ -478,10 +458,9 @@ router.post('/createOneQuestion', (req, res) => {
         respondMsg(res, 1, '类型输入不合法');
         return;
     }
-    
     Question.findOne({ subject: obj.subject, chapterNumber: obj.chapterNmuber, type: obj.type, question: obj.question }, (err, resObj1) => {
         if (err) {
-            respondMsg(res, 1, '数据库操作失败1');
+            respondMsg(res, 1, '数据库操作失败');
             return;
         }
         if (resObj1) {
@@ -489,38 +468,26 @@ router.post('/createOneQuestion', (req, res) => {
             return;
         }
         else {
-            // console.log()
-            // console.log(questionTotalNum());
-            // quesNumberMaxNum(obj.subject, obj.type).then()
             questionTotalNum().then(maxID => {
-                console.log(maxID)
                 return maxID;
             }).then(maxID => {
-                let maxQuesNumber = null
                 Question.find({subject: obj.subject, type: obj.type}, (err, resObj) => {
                     let maxQuesNumber = null
                     maxQuesNumber = resObj[0].quesNumber;
-                    console.log(maxQuesNumber)
                     Question.create({
                         id: maxID + 1, subject: obj.subject, chapterNumber: obj.chapterNumber, chapter: obj.chapter,
-                        type: obj.type, question: obj.question, quesNumber: maxQuesNumber+1,
+                        type: obj.type, question: obj.question, quesNumber: maxQuesNumber + 1,
                         A: obj.A, B: obj.B, C: obj.C, D: obj.D, answer: obj.answer, tip: obj.tip
                         }, (err, resObj2) => {
                             if (err) {
-                                respondMsg(res, 1, '数据库操作失败2'+err);
+                                respondMsg(res, 1, '数据库操作失败');
                                 return;
                             }
-                            console.log({
-                                id: questionTotalNum() + 1, subject: obj.subject, chapterNumber: obj.chapterNumber, chapter: obj.chapter,
-                                type: obj.type, question: obj.question, quesNumber: quesNumberMaxNum(obj.subject, obj.type)+1,
-                                A: obj.A, B: obj.B, C: obj.C, D: obj.D, answer: obj.answer, tip: obj.tip
-                                })
                             respondMsg(res, 0, '题目添加成功');
                             return;
                     })
                 }).sort({quesNumber: -1}).skip(0).limit(1);
             })
-            
         }
     })
 

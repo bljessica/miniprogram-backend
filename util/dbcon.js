@@ -30,10 +30,6 @@ const questionSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    // correctRate: {
-    //     type: Number,
-    //     default: 0
-    // },
     wrongNum: {
         type: Number,
         default: 0
@@ -117,7 +113,15 @@ const userInfoSchema = new mongoose.Schema({
     isAdmin: {
         type: Boolean,
         default: false
-    }
+    },
+    wrongQuesNum: {
+        type: Number,
+        default: 0
+    },
+    doneQuesNum: {
+        type: Number,
+        default: 0 
+    },
 })
 const recordSchema = new mongoose.Schema({
     openID: {
