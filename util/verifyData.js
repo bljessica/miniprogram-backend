@@ -1,5 +1,6 @@
 const { Question } = require('../util/dbcon');
 const {TYPE_VALUES, SUBJECT_VALUES, GENDER_VALUES} =  require('./const')
+const { questionTotalNum } = require('./processData')
 
 //openID是否合法
 function verifyOpenID(openID) {
