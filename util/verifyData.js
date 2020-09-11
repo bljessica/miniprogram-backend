@@ -42,13 +42,13 @@ function verifyType(type) {
     return false;
 }
 
-function questionTotalNum(res) {
-    return new Promise((resolve, reject) => {
-        Question.find({}, (err, resObj) => {
-            resolve(resObj[0].id);
-        }).sort({id: -1}).skip(0).limit(1);
-    }) 
-}
+// function questionTotalNum(res) {
+//     return new Promise((resolve, reject) => {
+//         Question.find({}, (err, resObj) => {
+//             resolve(resObj[0].id);
+//         }).sort({id: -1}).skip(0).limit(1);
+//     }) 
+// }
 
 function verifyQuestionID(res, id) {
     if(!isNumber(id)){
@@ -72,3 +72,4 @@ module.exports.isNumber = isNumber;
 module.exports.verifySubject = verifySubject;
 module.exports.verifyType = verifyType;
 module.exports.verifyQuestionID = verifyQuestionID;
+// module.exports.questionTotalNum = questionTotalNum;

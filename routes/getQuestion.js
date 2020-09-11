@@ -5,7 +5,7 @@ const router = express.Router()
 
 const { Question, Record } = require('../util/dbcon')
 const { respondMsg, respondDBErr } = require('../util/response');
-const { verifySubject, verifyQuestionID, verifyType } = require('../util/verifyData')
+const { verifySubject, verifyQuestionID, verifyType, questionTotalNum } = require('../util/verifyData')
 const { countWrongRecords } = require('../util/processData')
 
 //获取某科目的所有题目
