@@ -22,7 +22,21 @@ router.get('/getSubject', (req, res) => {
         }
         let data = [];
         resObj.forEach(item => {
-            data.push(item)
+            data.push({
+                id: item.id,
+                correctRate: item.doneNum == 0? 0: parseInt((item.doneNum - item.wrongNum) / item.doneNum * 100),
+                chapterNumber: item.chapterNumber,
+                chapter: item.chapter,
+                type: item.type,
+                quesNumber: item.quesNumber,
+                question: item.question,
+                A: item.A,
+                B: item.B,
+                C: item.C, 
+                D: item.D,
+                answer: item.answer,
+                tip:item.tip
+            })
         });
         respondMsg(res, 0, '查询成功', data);
     })
@@ -35,6 +49,25 @@ router.get('/getChapter', (req, res) => {
         respondMsg(res, 1, '科目输入不合法');
         return;
     }
+    // Record.aggregate([
+    //     {
+    //         $lookup: {
+    //             from: 'questions',
+    //             localfield: 'quesID',
+    //             foreign: 'id',
+    //             as: 'questions'
+    //         }
+    //     },
+    //     {$unwind: '$questions'},
+    //     {$match: {subject: obj.subject, chapterNumber: obj.chapterNumber}},
+    //     {$group: {_id: isWrong, count: {$num: 1}}}
+    // ]).exec((err, records) => {
+    //     if(err) {
+    //         respondMsg(res, 1, '数据库操作失败');
+    //         return;
+    //     }
+
+    // })
     Question.find({subject: obj.subject, chapterNumber: obj.chapterNumber}, null, {chapterNumber: 1, quesNumber: 1}, (err, resObj) => {
         if(err) {
             respondMsg(res, 1, '数据库操作失败');
@@ -42,7 +75,21 @@ router.get('/getChapter', (req, res) => {
         }
         let data = [];
         resObj.forEach(item => {
-            data.push(item);
+            data.push({
+                id: item.id,
+                correctRate: item.doneNum == 0? 0: parseInt((item.doneNum - item.wrongNum) / item.doneNum * 100),
+                chapterNumber: item.chapterNumber,
+                chapter: item.chapter,
+                type: item.type,
+                quesNumber: item.quesNumber,
+                question: item.question,
+                A: item.A,
+                B: item.B,
+                C: item.C, 
+                D: item.D,
+                answer: item.answer,
+                tip:item.tip
+            })
         });
         respondMsg(res, 0, '查询成功', data);
     })
@@ -68,39 +115,57 @@ router.get('/getRandom', (req, res) => {
             randArr.push(tmp);
             //题目arr[tmp]的正确率
             let item = arr[tmp];
+            data.push({
+                id: item.id,
+                correctRate: item.doneNum == 0? 0: parseInt((item.doneNum - item.wrongNum) / item.doneNum * 100),
+                chapterNumber: item.chapterNumber,
+                chapter: item.chapter,
+                type: item.type,
+                quesNumber: item.quesNumber,
+                question: item.question,
+                A: item.A,
+                B: item.B,
+                C: item.C, 
+                D: item.D,
+                answer: item.answer,
+                tip:item.tip
+            })
+            if(data.length == 20) {
+                respondMsg(res, 0, '查询成功', data);
+            }
             //做过此题的人数
-            Record.countDocuments({quesID: item.id}, (err, countDone) => {
-                if(err) {
-                    respondMsg(res, 1, '数据库操作失败');
-                    return;
-                }
-                //做错此题的人数
-                Record.countDocuments({quesID: item.id, isWrong: true}, (err, countFaulty) => {
-                    if(err) {
-                        respondMsg(res, 1, '数据库操作失败');
-                        return;
-                    }
-                    item.correctRate = countDone == 0 ? 0: (countDone - countFaulty) / countDone;
-                    data.push({
-                        correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100),
-                        id: item.id,
-                        subject: item.subject,
-                        chapter: item.chapter,
-                        type: item.type,
-                        quesNumber: item.quesNumber,
-                        question: item.question,
-                        A: item.A,
-                        B: item.B,
-                        C: item.C, 
-                        D: item.D,
-                        answer: item.answer,
-                        tip:item.tip
-                    });
-                    if(data.length == 20) {
-                        respondMsg(res, 0, '查询成功', data);
-                    }
-                })
-            });
+            // Record.countDocuments({quesID: item.id}, (err, countDone) => {
+            //     if(err) {
+            //         respondMsg(res, 1, '数据库操作失败');
+            //         return;
+            //     }
+            //     //做错此题的人数
+            //     Record.countDocuments({quesID: item.id, isWrong: true}, (err, countFaulty) => {
+            //         if(err) {
+            //             respondMsg(res, 1, '数据库操作失败');
+            //             return;
+            //         }
+            //         item.correctRate = countDone == 0 ? 0: (countDone - countFaulty) / countDone;
+            //         data.push({
+            //             correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100),
+            //             id: item.id,
+            //             subject: item.subject,
+            //             chapter: item.chapter,
+            //             type: item.type,
+            //             quesNumber: item.quesNumber,
+            //             question: item.question,
+            //             A: item.A,
+            //             B: item.B,
+            //             C: item.C, 
+            //             D: item.D,
+            //             answer: item.answer,
+            //             tip:item.tip
+            //         });
+            //         if(data.length == 20) {
+            //             respondMsg(res, 0, '查询成功', data);
+            //         }
+            //     })
+            // });
         }
     });
 })
@@ -124,10 +189,24 @@ router.get('/getSimulation', (req, res) => {
             if(randArrSingle.includes(tmp)){
                 continue;
             }
-            let ques = arr[tmp];
-            if(ques.type == 1) { //单选
+            let item = arr[tmp];
+            if(item.type == 1) { //单选
                 randArrSingle.push(tmp);
-                dataSingle.push(ques);
+                dataSingle.push({
+                    id: item.id,
+                    correctRate: item.doneNum == 0? 0: parseInt((item.doneNum - item.wrongNum) / item.doneNum * 100),
+                    chapterNumber: item.chapterNumber,
+                    chapter: item.chapter,
+                    type: item.type,
+                    quesNumber: item.quesNumber,
+                    question: item.question,
+                    A: item.A,
+                    B: item.B,
+                    C: item.C, 
+                    D: item.D,
+                    answer: item.answer,
+                    tip:item.tip
+                });
             } 
         }
         while(randArrPlural.length < 17 ) {
@@ -135,10 +214,24 @@ router.get('/getSimulation', (req, res) => {
             if(randArrPlural.includes(tmp)){
                 continue;
             }
-            let ques = arr[tmp];
-            if(ques.type == 2) { //多选
+            let item = arr[tmp];
+            if(item.type == 2) { //多选
                 randArrPlural.push(tmp);
-                dataPlural.push(ques);
+                dataPlural.push({
+                    id: item.id,
+                    correctRate: item.doneNum == 0? 0: parseInt((item.doneNum - item.wrongNum) / item.doneNum * 100),
+                    chapterNumber: item.chapterNumber,
+                    chapter: item.chapter,
+                    type: item.type,
+                    quesNumber: item.quesNumber,
+                    question: item.question,
+                    A: item.A,
+                    B: item.B,
+                    C: item.C, 
+                    D: item.D,
+                    answer: item.answer,
+                    tip:item.tip
+                });
             }
         }
         respondMsg(res, 0, '查询成功', {
@@ -176,6 +269,7 @@ router.post('/getWrong', (req, res) => {
         records.forEach((item, index) => {
             arr.push({
                 id: item.quesID,
+                correctRate: item.wrong.doneNum == 0? 0: parseInt((item.wrong.doneNum - item.wrong.wrongNum) / item.wrong.doneNum * 100),
                 isCollected: item.isCollected,
                 subject: item.wrong.subject,
                 chapter: item.wrong.chapter,
@@ -288,19 +382,35 @@ router.post('/getOneQuestion', (req, res) => {
                 return;
             }
             if(records.length == 0){
-                Question.findOne({id: obj.id}, (err, resObj) => {
+                Question.findOne({id: obj.id}, (err, item) => {
                     if(err){
                         respondMsg(res, 1, '数据库操作失败');
                         return;
                     }
-                    respondMsg(res, 0, '无收藏记录或笔记', resObj);
+                    respondMsg(res, 0, '无收藏记录或笔记', [{
+                        id: item.id,
+                        correctRate: item.doneNum == 0? 0: parseInt((item.doneNum - item.wrongNum) / item.doneNum * 100),
+                        chapterNumber: item.chapterNumber,
+                        chapter: item.chapter,
+                        type: item.type,
+                        quesNumber: item.quesNumber,
+                        question: item.question,
+                        A: item.A,
+                        B: item.B,
+                        C: item.C, 
+                        D: item.D,
+                        answer: item.answer,
+                        tip:item.tip
+                    }]);
                     return;
                 })
             }
             else {
                 let record = records[0];
-                respondMsg(res, 0, '查询成功', {
+                respondMsg(res, 0, '查询成功', [{
                     id: record.quesID,
+                    correctRate: record.question.doneNum == 0? 0: parseInt((record.question.doneNum - record.question.wrongNum) / record.question.doneNum * 100),
+                    subject: record.question.subject,
                     chapterNumber: record.question.chapterNumber,
                     chapter: record.question.chapter,
                     type: record.question.type,
@@ -316,7 +426,7 @@ router.post('/getOneQuestion', (req, res) => {
                     isWrong: record.isWrong,
                     note: record.note == null? null: record.note,
                     noteCreatedTime: record.note == null? null: moment(record.noteCreatedTime).format('YYYY-MM-DD HH:mm')
-                })
+                }])
             }
         })
     });

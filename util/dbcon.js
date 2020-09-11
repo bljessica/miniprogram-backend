@@ -30,6 +30,18 @@ const questionSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    // correctRate: {
+    //     type: Number,
+    //     default: 0
+    // },
+    wrongNum: {
+        type: Number,
+        default: 0
+    },
+    doneNum: {
+        type: Number,
+        default: 0
+    },
     subject: {
         type: Number,
         required: true,
@@ -101,6 +113,10 @@ const userInfoSchema = new mongoose.Schema({
     createTime: {
         type: Date,
         default: Date.now
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false
     }
 })
 const recordSchema = new mongoose.Schema({

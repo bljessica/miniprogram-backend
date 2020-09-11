@@ -51,7 +51,6 @@ function saveDaysOfPersistence(res, obj, daysOfPersistence) {
             resolve();
         })
     })
-    
 }
 
 module.exports.subjectToNumber = subjectToNumber;
