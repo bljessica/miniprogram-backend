@@ -5,7 +5,7 @@ const router = express.Router()
 
 const { Question, Record } = require('../util/dbcon')
 const { respondMsg, respondDBErr } = require('../util/response');
-const { verifySubject, verifyQuestionID } = require('../util/verifyData')
+const { verifySubject, verifyQuestionID, verifyType } = require('../util/verifyData')
 const { countWrongRecords } = require('../util/processData')
 
 //获取某科目的所有题目
@@ -354,6 +354,46 @@ router.get('/getChapterNames', (req, res) => {
             })
         })
     })
+})
+
+//新增一道题目
+router.post('/createOneQuestion', (req, res) => {
+    let obj = req.body;
+    console.log('11111');
+    if(!verifySubject(obj.subject)) {
+        respondMsg(res, 1, '科目输入不合法');
+        return;
+    }
+    if (!verifyType(obj.type)) {
+        respondMsg(res, 1, '类型输入不合法');
+        return;
+    }
+    
+    Question.findOne({ subject: obj.subject, chapterNumber: obj.chapterNmuber, type: obj.type, question: obj.question }, (err, resObj1) => {
+        if (err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
+        if (resObj1) {
+            respondMsg(res, 1, '此题已存在，题目添加失败');
+            return;
+        }
+        else {
+            console.log(questionTotalNum(res));
+            Question.create({
+                id:questionTotalNum(res)+1, subject: obj.subject, chapterNumber: obj.chapterNumber, chapter: obj.chapter, type: obj.type, question: obj.question,
+                A: obj.A, B: obj.B, C: obj.C, D: obj.D, answer: obj.answer, tip: obj.tip
+                }, (err, resObj2) => {
+                    if (err) {
+                        respondMsg(res, 1, '数据库操作失败');
+                        return;
+                    }
+                    respondMsg(res, 0, '题目添加成功');
+                    return;
+            })
+        }
+    })
+
 })
 
 module.exports = router
