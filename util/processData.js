@@ -53,7 +53,7 @@ function saveDaysOfPersistence(res, obj, daysOfPersistence) {
     })
 } 
 
-function questionTotalNum(res) {
+function questionTotalNum() {
     return new Promise((resolve, reject) => {
         Question.find({}, (err, resObj) => {
             resolve(resObj[0].id);
@@ -61,11 +61,11 @@ function questionTotalNum(res) {
     }) 
 }
 
+
 module.exports.subjectToNumber = subjectToNumber;
 module.exports.typeToNumber = typeToNumber;
 module.exports.sortByChapter = sortByChapter;
 module.exports.countWrongRecords = countWrongRecords;
 module.exports.saveDaysOfPersistence = saveDaysOfPersistence;
 module.exports.questionTotalNum = questionTotalNum;
-// module.exports.questionTotalNum = questionTotalNum;
 

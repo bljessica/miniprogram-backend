@@ -5,8 +5,8 @@ const router = express.Router()
 
 const { Question, Record } = require('../util/dbcon')
 const { respondMsg, respondDBErr } = require('../util/response');
-const { verifySubject, verifyQuestionID } = require('../util/verifyData')
-const { countWrongRecords } = require('../util/processData')
+const { verifySubject, verifyQuestionID, verifyType } = require('../util/verifyData')
+const { countWrongRecords, questionTotalNum } = require('../util/processData')
 
 //获取某科目的所有题目
 router.get('/getSubject', (req, res) => {
@@ -464,6 +464,66 @@ router.get('/getChapterNames', (req, res) => {
             })
         })
     })
+})
+
+//新增一道题目
+router.post('/createOneQuestion', (req, res) => {
+    let obj = req.body;
+    console.log(req.body);
+    if(!verifySubject(obj.subject)) {
+        respondMsg(res, 1, '科目输入不合法');
+        return;
+    }
+    if (!verifyType(obj.type)) {
+        respondMsg(res, 1, '类型输入不合法');
+        return;
+    }
+    
+    Question.findOne({ subject: obj.subject, chapterNumber: obj.chapterNmuber, type: obj.type, question: obj.question }, (err, resObj1) => {
+        if (err) {
+            respondMsg(res, 1, '数据库操作失败1');
+            return;
+        }
+        if (resObj1) {
+            respondMsg(res, 1, '此题已存在，题目添加失败');
+            return;
+        }
+        else {
+            // console.log()
+            // console.log(questionTotalNum());
+            // quesNumberMaxNum(obj.subject, obj.type).then()
+            questionTotalNum().then(maxID => {
+                console.log(maxID)
+                return maxID;
+            }).then(maxID => {
+                let maxQuesNumber = null
+                Question.find({subject: obj.subject, type: obj.type}, (err, resObj) => {
+                    let maxQuesNumber = null
+                    maxQuesNumber = resObj[0].quesNumber;
+                    console.log(maxQuesNumber)
+                    Question.create({
+                        id: maxID + 1, subject: obj.subject, chapterNumber: obj.chapterNumber, chapter: obj.chapter,
+                        type: obj.type, question: obj.question, quesNumber: maxQuesNumber+1,
+                        A: obj.A, B: obj.B, C: obj.C, D: obj.D, answer: obj.answer, tip: obj.tip
+                        }, (err, resObj2) => {
+                            if (err) {
+                                respondMsg(res, 1, '数据库操作失败2'+err);
+                                return;
+                            }
+                            console.log({
+                                id: questionTotalNum() + 1, subject: obj.subject, chapterNumber: obj.chapterNumber, chapter: obj.chapter,
+                                type: obj.type, question: obj.question, quesNumber: quesNumberMaxNum(obj.subject, obj.type)+1,
+                                A: obj.A, B: obj.B, C: obj.C, D: obj.D, answer: obj.answer, tip: obj.tip
+                                })
+                            respondMsg(res, 0, '题目添加成功');
+                            return;
+                    })
+                }).sort({quesNumber: -1}).skip(0).limit(1);
+            })
+            
+        }
+    })
+
 })
 
 module.exports = router

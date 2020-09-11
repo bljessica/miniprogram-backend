@@ -73,3 +73,4 @@ module.exports.isNumber = isNumber;
 module.exports.verifySubject = verifySubject;
 module.exports.verifyType = verifyType;
 module.exports.verifyQuestionID = verifyQuestionID;
+// module.exports.questionTotalNum = questionTotalNum;
