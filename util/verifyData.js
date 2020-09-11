@@ -1,5 +1,6 @@
 const { Question } = require('../util/dbcon');
 const {TYPE_VALUES, SUBJECT_VALUES, GENDER_VALUES} =  require('./const')
+const { questionTotalNum } = require('./processData')
 
 //openID是否合法
 function verifyOpenID(openID) {
@@ -42,13 +43,13 @@ function verifyType(type) {
     return false;
 }
 
-function questionTotalNum(res) {
-    return new Promise((resolve, reject) => {
-        Question.find({}, (err, resObj) => {
-            resolve(resObj[0].id);
-        }).sort({id: -1}).skip(0).limit(1);
-    }) 
-}
+// function questionTotalNum(res) {
+//     return new Promise((resolve, reject) => {
+//         Question.find({}, (err, resObj) => {
+//             resolve(resObj[0].id);
+//         }).sort({id: -1}).skip(0).limit(1);
+//     }) 
+// }
 
 function verifyQuestionID(res, id) {
     if(!isNumber(id)){
