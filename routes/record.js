@@ -304,8 +304,8 @@ router.post('/totalProgress', (req, res) => {
                     {$match: {openID: obj.openID, 'dones.subject': i}},
                     {$group: {_id: '$isWrong', count: {$sum: 1}}},
                 ]).exec((err, records) => {
-                    console.log(records)
-                    console.log()
+                    // console.log(records)
+                    // console.log()
                     let countWrong = 0, countDone = 0;
                     if(records.length != 0) {
                         if(records.length == 1 && records[0]._id == false){
