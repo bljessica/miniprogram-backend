@@ -43,7 +43,7 @@ function countWrongRecords(obj, res) {
 
 function saveDaysOfPersistence(res, obj, daysOfPersistence) {
     return new Promise((resolve, reject) => {
-        UserInfo.update({openID: obj.openID}, {daysOfPersistence: daysOfPersistence}, (err, resObj) => {
+        UserInfo.updateOne({openID: obj.openID}, {daysOfPersistence: daysOfPersistence}, (err, resObj) => {
             if(err) {
                 respondMsg(res, 1, '数据库操作失败');
                 return;

@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();//可使用 express.Router 类创建模块化、可挂载的路由句柄
 const moment = require('moment');
 const axios = require('axios');
-// const rp = require('request-promise');
 
 const { UserInfo, Record } = require('../util/dbcon');
 const { respondMsg } = require('../util/response');
@@ -19,8 +18,11 @@ router.post('/getUser', (req, res) => {
         }
         //存在此openID
         if(resObj) {
+            let date = moment();
             //剩余天数
-            let daysOfPersistence = Math.round((Date.now() - moment(resObj.createTime).valueOf()) / (1*24*60*60*1000));
+            let daysOfPersistence = date.diff(moment(resObj.createTime).format('YYYY-MM-DD'), 'days');
+            // console.log(date.diff(moment(resObj.createTime).format('YYYY-MM-DD'), 'days'), date.format('YYYY-MM-DD'), moment(resObj.createTime).format('YYYY-MM-DD'))
+            // console.log((Date.now() - moment(resObj.createTime).valueOf()) / (1*24*60*60*1000))
             //存储剩余天数
             saveDaysOfPersistence(res, obj, daysOfPersistence)
                 .then(() => {
@@ -130,9 +132,12 @@ router.post('/saveUserInfo', (req, res) => {
             })
         }
         else {
+            //更新剩余天数
+            let date = moment();
+            let daysOfPersistence = date.diff(moment(resObj1.createTime).format('YYYY-MM-DD'), 'days');
             UserInfo.updateOne({openID: obj.openID}, { avatar: obj.avatar, nickname: obj.nickname, 
                 gender: obj.gender, school: obj.school, goal: obj.goal, motto: obj.motto, 
-                daysOfPersistence: obj.daysOfPersistence}, (err, resObj2) => {
+                daysOfPersistence: daysOfPersistence}, (err, resObj2) => {
                 if(err) {
                     respondMsg(res, 1, '数据库操作失败');
                     return;
@@ -170,60 +175,43 @@ router.post('/getUserInfo', (req, res) => {
 })
 
 //刷题数量最多的20名用户
-router.post('/maxQuesRank', (req, res) => {
+router.post('/getRank', (req, res) => {
     let obj = req.body;
-    UserInfo.find({}, (err, users) => {
+    UserInfo.find({}, (err, usersDoneNum) => {
         if(err) {
             respondMsg(res, 1, '数据库操作失败');
             return;
         }
-        UserInfo.findOne({openID: obj.openID}, (err, resObj) => {
+        UserInfo.find({}, (err, usersDays) => {
             if(err) {
                 respondMsg(res, 1, '数据库操作失败');
                 return;
             }
-            respondMsg(res, 0, '查询成功', {
-                rank: users,
-                mine: resObj
-            });
-        })
+            UserInfo.findOne({openID: obj.openID}, (err, resObj) => {
+                if(err) {
+                    respondMsg(res, 1, '数据库操作失败');
+                    return;
+                }
+                respondMsg(res, 0, '查询成功', {
+                    rankNum: usersDoneNum,
+                    rankDays: usersDays,
+                    mine: resObj
+                });
+            })
+        }).sort({daysOfPersistence: -1}).limit(20);
     }).sort({doneQuesNum: -1}).limit(20);
 })
-
-//坚持天数最多的20名用户
-router.post('/maxDaysRank', (req, res) => {
-    let obj = req.body;
-    UserInfo.find({}, (err, users) => {
-        if(err) {
-            respondMsg(res, 1, '数据库操作失败');
-            return;
-        }
-        UserInfo.findOne({openID: obj.openID}, (err, resObj) => {
-            if(err) {
-                respondMsg(res, 1, '数据库操作失败');
-                return;
-            }
-            respondMsg(res, 0, '查询成功', {
-                rank: users,
-                mine: resObj
-            });
-        })
-    }).sort({daysOfPersistence: -1}).limit(20);
-})
-
 
 //根据临时code获取openID
 router.post('/getOpenID', (req, res) => {
     let code = req.body.code;
     axios.get(`https://api.weixin.qq.com/sns/jscode2session?appid=wx0e8cbbba3aab1125&secret=9097a462abccba0564091d8536fc7295&js_code=${code}&grant_type=authorization_code`)
         .then(response => {
-            // console.log(response, `https://api.weixin.qq.com/sns/jscode2session?appid=wx0e8cbbba3aab1125&secret=9097a462abccba0564091d8536fc7295&js_code=${code}&grant_type=authorization_code`);
             respondMsg(res, 0, '查询成功', {
                 openID: response.data.openid
             })
         })
         .catch(err => {
-            // console.log(err);
             respondMsg(res, 1, '操作失败', err)
         })
 })
