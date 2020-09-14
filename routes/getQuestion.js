@@ -114,39 +114,6 @@ router.get('/getRandom', (req, res) => {
             if(data.length == 20) {
                 respondMsg(res, 0, '查询成功', data);
             }
-            //做过此题的人数
-            // Record.countDocuments({quesID: item.id}, (err, countDone) => {
-            //     if(err) {
-            //         respondMsg(res, 1, '数据库操作失败');
-            //         return;
-            //     }
-            //     //做错此题的人数
-            //     Record.countDocuments({quesID: item.id, isWrong: true}, (err, countFaulty) => {
-            //         if(err) {
-            //             respondMsg(res, 1, '数据库操作失败');
-            //             return;
-            //         }
-            //         item.correctRate = countDone == 0 ? 0: (countDone - countFaulty) / countDone;
-            //         data.push({
-            //             correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100),
-            //             id: item.id,
-            //             subject: item.subject,
-            //             chapter: item.chapter,
-            //             type: item.type,
-            //             quesNumber: item.quesNumber,
-            //             question: item.question,
-            //             A: item.A,
-            //             B: item.B,
-            //             C: item.C, 
-            //             D: item.D,
-            //             answer: item.answer,
-            //             tip:item.tip
-            //         });
-            //         if(data.length == 20) {
-            //             respondMsg(res, 0, '查询成功', data);
-            //         }
-            //     })
-            // });
         }
     });
 })
