@@ -282,7 +282,7 @@ router.post('/totalProgress', (req, res) => {
         if(!resObj1) {
             respondMsg(res, 1, '用户不存在');
             return;
-        }
+        } 
         for(let i = 1; i <= SUBJECTS.length; i++) {
             //各科目总题数countQuestion
             Question.countDocuments({subject: i}, (err, countQuestion) => {
