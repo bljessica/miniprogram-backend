@@ -111,7 +111,7 @@ router.post('/saveUser', (req, res) => {
         }
         //没存过
         else {
-            UserInfo.create({ openID: md5(obj.openID + PASSWORD), avatar: obj.avatar, gender: obj.gender, nickname: obj.nickname}, (err, resObj2) => {
+            UserInfo.create({ openID: obj.openID, avatar: obj.avatar, gender: obj.gender, nickname: obj.nickname}, (err, resObj2) => {
                 if(err) {
                     respondMsg(res, 1, '数据库操作失败');
                     return;

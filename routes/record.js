@@ -122,7 +122,7 @@ router.post('/collect', (req, res) => {
             }
             //更新记录内容
             if(resObj) {
-                Record.updateOneOne({ openID: obj.openID, quesID: obj.id}, {isCollected: true, collectedTime: Date.now()}, (err, resObj) => {
+                Record.updateOne({ openID: obj.openID, quesID: obj.id}, {isCollected: true, collectedTime: Date.now()}, (err, resObj) => {
                     if(err) {
                         respondMsg(res, 1, '数据库操作失败');
                         return;
