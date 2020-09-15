@@ -167,6 +167,18 @@ router.post('/getUserInfo', (req, res) => {
     })
 })
 
+//坚持天数最多的20名用户
+router.get('/maxDaysRank', (req, res) => {
+    UserInfo.find({}, (err, users) => {
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
+        respondMsg(res, 0, '查询成功', users);
+    }).sort({daysOfPersistence: -1}).limit(20);
+})
+
+
 //刷题数量最多的20名用户
 router.get('/maxQuesRank', (req, res) => {
     UserInfo.find({}, (err, users) => {
