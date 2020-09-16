@@ -47,10 +47,10 @@ rl.on('line', (item) => {
         type: parseInt(questionItems[0].substring(lenA - 7, lenA - 5)),
         quesNumber: parseInt(questionItems[0].substring(lenA - 3)),
         question: questionItems[1].replace(/^\s+|\s+$/g, ''),
-        A: options.substring(indexA, indexB).replace(/^\s+|\s+$/g, ''),
-        B: options.substring(indexB, indexC).replace(/^\s+|\s+$/g, ''),
-        C: options.substring(indexC, indexD).replace(/^\s+|\s+$/g, ''),
-        D: options.substring(indexD).replace(/^\s+|\s+$/g, ''),
+        A: options.substring(indexA + 2, indexB).replace(/^\s+|\s+$/g, ''),
+        B: options.substring(indexB + 2, indexC).replace(/^\s+|\s+$/g, ''),
+        C: options.substring(indexC + 2, indexD).replace(/^\s+|\s+$/g, ''),
+        D: options.substring(indexD + 2).replace(/^\s+|\s+$/g, ''),
         answer: options.substring(answerStart + 7, answerEnd).replace(/^\s+|\s+$/g, ''),
         tip: tip.replace(/^\s+|\s+$/g, '')
     });

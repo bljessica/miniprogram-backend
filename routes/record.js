@@ -254,7 +254,7 @@ router.post('/cancelCollection', (req, res) => {
         }
         //取消收藏
         if(resObj1) {
-            Record.updateOneOne({openID: obj.openID, quesID: obj.id}, {isCollected: false}, (err, resObj2) => {
+            Record.updateOne({openID: obj.openID, quesID: obj.id}, {isCollected: false}, (err, resObj2) => {
                 if(err) {
                     respondMsg(res, 1, '数据库操作失败');
                     return;

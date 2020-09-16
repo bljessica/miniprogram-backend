@@ -23,7 +23,7 @@ router.post('/getUser', (req, res) => {
         if(resObj) {
             let date = moment();
             //剩余天数
-            let daysOfPersistence = date.diff(moment(resObj.createTime).format('YYYY-MM-DD'), 'days');
+            let daysOfPersistence = date.diff(moment(resObj.createTime).format('YYYY-MM-DD'), 'days') + 1;
             // console.log(date.diff(moment(resObj.createTime).format('YYYY-MM-DD'), 'days'), date.format('YYYY-MM-DD'), moment(resObj.createTime).format('YYYY-MM-DD'))
             // console.log((Date.now() - moment(resObj.createTime).valueOf()) / (1*24*60*60*1000))
             //存储剩余天数
@@ -40,7 +40,6 @@ router.post('/getUser', (req, res) => {
                             respondMsg(res, 1, '数据库操作失败');
                             return;
                         }
-                    // })
                         respondMsg(res, 0, '查询成功', {
                             nickname: resObj.nickname,
                             avatar: resObj.avatar,
@@ -49,27 +48,6 @@ router.post('/getUser', (req, res) => {
                             correctRate: user.doneQuesNum == 0 ? 0: parseInt((user.doneQuesNum - user.wrongQuesNum) / user.doneQuesNum * 100)
                         })
                     })
-                    // Record.countDocuments({openID: obj.openID}, (err, countDone) => {
-                    //     if(err) {
-                    //         respondMsg(res, 1, '数据库操作失败');
-                    //         return;
-                    //     }
-                    //     //用户做错的题数
-                    //     Record.countDocuments({openID: obj.openID, isWrong: true}, 
-                    //         (err, countFaulty) => {
-                    //         if(err) {
-                    //             respondMsg(res, 1, '数据库操作失败');
-                    //             return;
-                    //         }
-                    //         respondMsg(res, 0, '查询成功', {
-                    //             nickname: resObj.nickname,
-                    //             avatar: resObj.avatar,
-                    //             daysRemaining: daysRemaining,
-                    //             daysOfPersistence: daysOfPersistence,
-                    //             correctRate: countDone == 0 ? 0: parseInt((countDone - countFaulty) / countDone * 100)
-                    //         })
-                    //     })
-                    // })
                 })
         }
         //openID不存在
@@ -151,7 +129,7 @@ router.post('/saveUserInfo', (req, res) => {
         else {
             //更新剩余天数
             let date = moment();
-            let daysOfPersistence = date.diff(moment(resObj1.createTime).format('YYYY-MM-DD'), 'days');
+            let daysOfPersistence = date.diff(moment(resObj1.createTime).format('YYYY-MM-DD'), 'days') + 1;
             UserInfo.updateOne({openID: obj.openID}, { avatar: obj.avatar, nickname: obj.nickname, 
                 gender: obj.gender, school: obj.school, goal: obj.goal, motto: obj.motto, 
                 daysOfPersistence: daysOfPersistence}, (err, resObj2) => {
@@ -192,6 +170,68 @@ router.post('/getUserInfo', (req, res) => {
 })
 
 //刷题数量最多的20名用户
+router.post('/getNumRank', (req, res) => {
+    let obj = req.body;
+    UserInfo.find({}, (err, usersDoneNum) => {
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
+        let doneUserArr = [];
+        usersDoneNum.forEach(item => {
+            doneUserArr.push({
+                nickname: item.nickname,
+                avatar: item.avatar,
+                doneQuesNum: item.doneQuesNum
+            })
+        })
+        UserInfo.findOne({openID: obj.openID}, (err, resObj) => {
+            if(err) {
+                respondMsg(res, 1, '数据库操作失败');
+                return;
+            }
+            respondMsg(res, 0, '查询成功', {
+                rankNum: doneUserArr,
+                mine: {
+                    doneQuesNum: resObj.doneQuesNum
+                }
+            });
+        })
+    }).sort({doneQuesNum: -1}).limit(20);
+})
+
+//坚持天数最多的20名用户
+router.post('/getDaysRank', (req, res) => {
+    let obj = req.body;
+    UserInfo.find({}, (err, usersDays) => {
+        if(err) {
+            respondMsg(res, 1, '数据库操作失败');
+            return;
+        }
+        let daysUserArr = [];
+        usersDays.forEach(item => {
+            daysUserArr.push({
+                nickname: item.nickname,
+                avatar: item.avatar,
+                daysOfPersistence: item.daysOfPersistence
+            })
+        })
+        UserInfo.findOne({openID: obj.openID}, (err, resObj) => {
+            if(err) {
+                respondMsg(res, 1, '数据库操作失败');
+                return;
+            }
+            respondMsg(res, 0, '查询成功', {
+                rankDays: daysUserArr,
+                mine: {
+                    daysOfPersistence: resObj.daysOfPersistence
+                }
+            });
+        })
+    }).sort({daysOfPersistence: -1}).limit(20);
+})
+
+//(未使用)刷题数量最多和坚持天数最多的20名用户
 router.post('/getRank', (req, res) => {
     let obj = req.body;
     UserInfo.find({}, (err, usersDoneNum) => {
@@ -199,11 +239,27 @@ router.post('/getRank', (req, res) => {
             respondMsg(res, 1, '数据库操作失败');
             return;
         }
+        let doneUserArr = [];
+        usersDoneNum.forEach(item => {
+            doneUserArr.push({
+                nickname: item.nickname,
+                avatar: item.avatar,
+                doneQuesNum: item.doneQuesNum
+            })
+        })
         UserInfo.find({}, (err, usersDays) => {
             if(err) {
                 respondMsg(res, 1, '数据库操作失败');
                 return;
             }
+            let daysUserArr = [];
+            usersDays.forEach(item => {
+                daysUserArr.push({
+                    nickname: item.nickname,
+                    avatar: item.avatar,
+                    daysOfPersistence: item.daysOfPersistence
+                })
+            })
             UserInfo.findOne({openID: obj.openID}, (err, resObj) => {
                 if(err) {
                     respondMsg(res, 1, '数据库操作失败');
@@ -212,7 +268,10 @@ router.post('/getRank', (req, res) => {
                 respondMsg(res, 0, '查询成功', {
                     rankNum: usersDoneNum,
                     rankDays: usersDays,
-                    mine: resObj
+                    mine: {
+                        doneQuesNum: resObj.doneQuesNum,
+                        daysOfPersistence: resObj.daysOfPersistence
+                    }
                 });
             })
         }).sort({daysOfPersistence: -1}).limit(20);
