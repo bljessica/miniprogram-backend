@@ -69,6 +69,14 @@ router.post('/saveUser', (req, res) => {
         respondMsg(res, 1, 'openID不合法');
         return;
     }
+    if(obj.nickname.length == 0){
+        respondMsg(res, 1, '昵称不能为空');
+        return;
+    }
+    if (obj.nickname.trim().length ==0) {
+        respondMsg(res, 1, '昵称不能全为空格');
+        return;
+    }
     //是否已经存过
     UserInfo.findOne({openID: obj.openID}, (err, resObj1) => {
         if(err) {
@@ -109,6 +117,14 @@ router.post('/saveUserInfo', (req, res) => {
     }
     if(!isNumber(obj.goal) || !isNumber(obj.daysOfPersistence)) {
         respondMsg(res, 1, '刷题目标或坚持天数不合法');
+        return;
+    }
+    if(obj.nickname.length == 0){
+        respondMsg(res, 1, '昵称不能为空');
+        return;
+    }
+    if (obj.nickname.trim().length ==0) {
+        respondMsg(res, 1, '昵称不能全为空格');
         return;
     }
     //是否存在此用户

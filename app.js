@@ -16,6 +16,7 @@ const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
 let PORT = 3000;
 let SSLPORT = 8000;
+
 // let PORT = 80;
 // let SSLPORT = 443;
 
@@ -38,6 +39,11 @@ app.use('/note/', note)
 app.use('/notice/', notice)
 app.use('/admin/', admin)
 
+//mocha测试
+// module.exports = httpServer.listen(PORT, '0.0.0.0', () => {
+//     console.log('HTTP SERVER is running on: http://49.234.89.20:%s', PORT);
+// })
+
 httpServer.listen(PORT, '0.0.0.0', () => {
     console.log('HTTP SERVER is running on: http://49.234.89.20:%s', PORT);
 })
@@ -46,18 +52,13 @@ httpsServer.listen(SSLPORT, '0.0.0.0', () => {
     console.log('HTTPS SERVER is running on: https://49.234.89.20:%s', SSLPORT);
 })
 
-// app.get('/', function(req, res) {
-//     if(req.protocol === 'https') {
-//         res.status(200).send('Welcome to Safety Land!');
-//     }
-//     else {
-//         res.status(200).send('Welcome!');
-//     }
-// });
+app.get('/', function(req, res) {
+    if(req.protocol === 'https') {
+        res.status(200).send('Welcome to Safety Land!');
+    }
+    else {
+        res.status(200).send('Welcome!');
+    }
+});
 
-// const server = app.listen(3000, '0.0.0.0', () => {
-//     let host = server.address().address
-//     let port = server.address().port
-//     console.log('服务器运行在http://%s:%s', host, port)
-// })
 

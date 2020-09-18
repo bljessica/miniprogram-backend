@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
-const url = 'mongodb://localhost/ques'
+// const url = 'mongodb://127.0.0.1:28018/ques'
+const url = 'mongodb://127.0.0.1/ques'
 const {TYPE_VALUES, SUBJECT_VALUES, GENDER_VALUES} =  require('../util/const')
 
 
@@ -94,7 +95,10 @@ const userInfoSchema = new mongoose.Schema({
         unique: true
     },
     avatar: String,
-    nickname: String,
+    nickname: {
+        type: String,
+        required: true,
+    },
     gender: {
         type: Number,
         enum: GENDER_VALUES

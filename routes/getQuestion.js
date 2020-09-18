@@ -460,4 +460,28 @@ router.post('/createOneQuestion', (req, res) => {
 
 })
 
+//(测试)获取所有题目
+router.get('/questions', (req, res) => {
+    Question.find({}, (err, resObj) => {
+        if(err){
+            res.statusCode = 500;
+            return;
+        }
+        respondMsg(res, 0, '查询成功', resObj)
+    })
+}) 
+
+//(测试)获取某个题目
+router.get('/questions/id', (req, res) => {
+    let obj = req.query;
+    Question.find({id: obj.id}, (err, resObj) => {
+        if(err){
+            res.statusCode = 500;
+            return;
+        }
+        respondMsg(res, 0, '查询成功', resObj[0])
+    })
+}) 
+
+
 module.exports = router
