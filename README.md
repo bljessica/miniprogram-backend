@@ -2,7 +2,8 @@
 考研政治刷题小程序NodeJS后端代码
 
 ## 1、项目简介
-这是一款基于uni.app前端开发平台，使用MongoDB数据库+Express框架开发的微信小程序。本小程序旨在为方便考研学生进行考研政治题目进行章节练习、智能模考的需求的用户开发，包含章节练习、随机练习、智能模考、错题重练等功能，使用户能更好地准备考研政治，提高自己的分数。
+这是一款基于uni.app前端开发平台，使用MongoDB数据库+Express框架开发的微信小程序。
+本小程序旨在为方便考研学生进行考研政治题目进行章节练习、智能模考的需求的用户开发，包含章节练习、随机练习、智能模考、错题重练等功能，使用户能更好地准备考研政治，提高自己的分数。
 
 ## 2、技术
 + node.js+express框架
@@ -15,9 +16,7 @@ npm install
 ```
 将题目存入数据库
 ```
-cd miniprogram-backend
-
-cd util
+cd miniprogram-backend/util
 
 node saveOriginQuestions.js
 ```
