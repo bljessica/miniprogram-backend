@@ -1,11 +1,32 @@
 # MiniProgram-Backend
 考研政治刷题小程序NodeJS后端代码
 
-## 1、技术
+## 1、项目简介
+这是一款基于uni.app前端开发平台，使用MongoDB数据库+Express框架开发的微信小程序。本小程序旨在为方便考研学生进行考研政治题目进行章节练习、智能模考的需求的用户开发，包含章节练习、随机练习、智能模考、错题重练等功能，使用户能更好地准备考研政治，提高自己的分数。
+
+## 2、技术
 + node.js+express框架
 + mongodb数据库
 
-## 2、功能
+## 3、运行
+将题目存入数据库
+```
+cd miniprogram-backend
+
+cd util
+
+node saveOriginQuestions.js
+```
+运行服务器
+```
+cd miniprogram-backend
+
+npm install
+
+node app.js
+```
+
+## 4、功能
 ### 用户
 + 获取用户头像和昵称
 + 存入用户头像和昵称
@@ -54,25 +75,7 @@
 ### 管理员
 + 判断是否为管理员
 
-## 3、运行
-将题目存入数据库
-```
-cd miniprogram-backend
-
-cd util
-
-node saveOriginQuestions.js
-```
-运行服务器
-```
-cd miniprogram-backend
-
-npm install
-
-node app.js
-```
-
-## 4、mocha测试
+## 5、mocha测试
 在app.js中将原httpServer注释掉，打开最后三行导出模块的注释
 ```
 mocha
