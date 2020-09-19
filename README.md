@@ -9,6 +9,10 @@
 + mongodb数据库
 
 ## 3、运行
+安装依赖
+```
+npm install
+```
 将题目存入数据库
 ```
 cd miniprogram-backend
@@ -20,8 +24,6 @@ node saveOriginQuestions.js
 运行服务器
 ```
 cd miniprogram-backend
-
-npm install
 
 node app.js
 ```
