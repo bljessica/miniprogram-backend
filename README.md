@@ -1,11 +1,11 @@
 # MiniProgram-Backend
 考研政治刷题小程序NodeJS后端代码
 
-## 技术
+## 1、技术
 + node.js+express框架
 + mongodb数据库
 
-## 功能
+## 2、功能
 ### 用户
 + 获取用户头像和昵称
 + 存入用户头像和昵称
@@ -54,7 +54,8 @@
 ### 管理员
 + 判断是否为管理员
 
-## 将题目存入数据库
+## 3、运行
+将题目存入数据库
 ```
 cd miniprogram-backend
 
@@ -62,8 +63,7 @@ cd util
 
 node saveOriginQuestions.js
 ```
-
-## 运行
+运行服务器
 ```
 cd miniprogram-backend
 
@@ -72,8 +72,8 @@ npm install
 node app.js
 ```
 
-## mocha测试
-app.js中将原httpServer注释掉，打开最后三行导出模块的注释
+## 4、mocha测试
+在app.js中将原httpServer注释掉，打开最后三行导出模块的注释
 ```
 mocha
 ```
