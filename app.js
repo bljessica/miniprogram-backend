@@ -25,8 +25,8 @@ const notice = require('./routes/notice')
 const admin = require('./routes/admin')
 
 // app.use(express.static('public'))
-app.use(bodyParser.json());//解析json数据格式
-app.use(bodyParser.urlencoded({extended: false}));//解析form表单字段(Content-Type: application/x-www-form-urlencoded)
+app.use(bodyParser.json({limit: '50mb'}));//解析json数据格式
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));//解析form表单字段(Content-Type: application/x-www-form-urlencoded)
 
 //挂载路由
 app.use('/user/', user)

@@ -72,6 +72,9 @@ router.get('/getChapter', (req, res) => {
                 tip:item.tip
             })
         });
+        data.sort((a, b) => {
+            return Math.random() - 0.5;
+        })
         respondMsg(res, 0, '查询成功', data);
     })
 })
