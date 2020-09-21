@@ -25,6 +25,20 @@ it('should list ALL questions on /ques/questions GET', function(done) {
 });
 
 it('should list a SINGLE question on /ques/question/id GET', function(done) {
+    // for(let i = 1; i < 201; i++){
+    //     chai.request(server)
+    //     .get(`/ques/questions/id?id=${i}`)
+    //     .end(function(err, res){
+    //         res.should.have.status(200);
+    //         let result = JSON.parse(res.text);
+    //         result.data.should.be.a('object');
+    //         result.data.should.have.property('subject');
+    //         result.data.should.have.property('chapter');
+    //         if(i == 50) {
+    //             done();
+    //         }
+    //     });
+    // }
     chai.request(server)
     .get('/ques/questions/id?id=3')
     .end(function(err, res){

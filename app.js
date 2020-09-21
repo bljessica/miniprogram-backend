@@ -17,9 +17,6 @@ const httpsServer = https.createServer(credentials, app);
 let PORT = 3000;
 let SSLPORT = 8000;
 
-// let PORT = 80;
-// let SSLPORT = 443;
-
 const user = require('./routes/user')
 const getQuestion = require('./routes/getQuestion')
 const record = require('./routes/record')
@@ -39,11 +36,6 @@ app.use('/note/', note)
 app.use('/notice/', notice)
 app.use('/admin/', admin)
 
-//mocha测试
-// module.exports = httpServer.listen(PORT, '0.0.0.0', () => {
-//     console.log('HTTP SERVER is running on: http://49.234.89.20:%s', PORT);
-// })
-
 httpServer.listen(PORT, '0.0.0.0', () => {
     console.log('HTTP SERVER is running on: http://49.234.89.20:%s', PORT);
 })
@@ -60,5 +52,10 @@ app.get('/', function(req, res) {
         res.status(200).send('Welcome!');
     }
 });
+
+// //mocha测试
+// module.exports = httpServer.listen(PORT, '0.0.0.0', () => {
+//     console.log('HTTP SERVER is running on: http://49.234.89.20:%s', PORT);
+// })
 
 
