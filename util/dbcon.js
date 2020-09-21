@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 
+// const url = 'mongodb://root:happy123@127.0.0.1:28018/ques?authSource=admin'
 const url = 'mongodb://127.0.0.1/ques'
 const {TYPE_VALUES, SUBJECT_VALUES, GENDER_VALUES} =  require('../util/const')
 
