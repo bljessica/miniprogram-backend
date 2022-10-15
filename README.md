@@ -13,19 +13,19 @@
 ## 3、运行
 安装依赖
 ```
-npm install
+$ npm install
 ```
 将题目存入数据库
 ```
-cd miniprogram-backend/util
+$ cd miniprogram-backend/util
 
-node saveOriginQuestions.js
+$ node saveOriginQuestions.js
 ```
 运行服务器
 ```
-cd miniprogram-backend
+$ cd miniprogram-backend
 
-node app.js
+$ node app.js
 ```
 
 ## 4、功能
@@ -80,5 +80,5 @@ node app.js
 ## 5、mocha测试
 在app.js中将原httpServer注释掉，打开最后三行导出模块的注释
 ```
-mocha
+$ mocha
 ```
